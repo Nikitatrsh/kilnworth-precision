@@ -1,0 +1,90 @@
+---
+// Case studies as a list of rows: drawing on the left, the numbers on the right.
+import { getCollection } from 'astro:content';
+import CaseDrawing from '../drawings/CaseDrawing.astro';
+import CaseSpecs from '../CaseSpecs.astro';
+
+interface Props {
+  /** 3 under a section h2 (home), 2 directly under the page h1 (/work). */
+  level?: 2 | 3;
+}
+const { level = 3 } = Astro.props;
+const Heading = level === 2 ? 'h2' : 'h3';
+const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<ol class="work-list">
+  {cases.map((c) => (
+    <li class="work-item">
+      <div class="work-drawing grid-paper">
+        <CaseDrawing drawing={c.data.drawing} id={`work-${c.id}`} />
+      </div>
+      <div class="work-text">
+        <p class="work-industry">{c.data.industry}</p>
+        <Heading class="work-title">
+          <a href={`/work/${c.id}`}>{c.data.title}</a>
+        </Heading>
+        <p class="work-result">{c.data.result}</p>
+        <CaseSpecs data={c.data} />
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .work-list {
+    display: grid;
+    gap: var(--space-7);
+    padding: 0;
+    list-style: none;
+  }
+  .work-item {
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+    max-inline-size: none;
+  }
+  @media (min-width: 52rem) {
+    .work-item {
+      grid-template-columns: 5fr 7fr;
+      align-items: start;
+    }
+  }
+  .work-drawing {
+    border: 1px solid var(--line);
+    padding: var(--space-4);
+    aspect-ratio: 16 / 10;
+    display: grid;
+    place-items: center;
+  }
+  .work-drawing :global(svg) {
+    max-block-size: 100%;
+  }
+  .work-text {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .work-industry {
+    font-size: var(--step--1);
+    font-stretch: var(--width-label);
+    font-weight: 600;
+    color: var(--steel);
+  }
+  .work-title {
+    font-size: var(--step-2);
+    font-stretch: var(--width-display);
+  }
+  .work-title a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .work-title a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+  .work-result {
+    margin-block-end: var(--space-2);
+  }
+</style>

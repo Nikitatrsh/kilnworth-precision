@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import Monogram from '../components/Monogram.astro';
+import Timeline from '../components/about/Timeline.astro';
+import ShopPlan from '../components/drawings/ShopPlan.astro';
+import { site } from '../config/site';
+
+const principles = [
+  {
+    title: 'We read the print before we price it',
+    text: 'An engineer reviews every drawing. If a 0.005 in corner radius is going to triple the cost, you hear about it in the quote, not after the PO.',
+  },
+  {
+    title: 'We say no early',
+    text: 'About one request in five is not a good fit: too large, wrong process, or a price we cannot meet. We tell you within a day and, when we can, name a shop that fits better.',
+  },
+  {
+    title: 'The paperwork ships with the parts',
+    text: 'Certs, inspection reports and lot numbers go in the box. A missing cert holds up your receiving as surely as a bad bore.',
+  },
+];
+
+// Monograms instead of photos (brief: no faces). Names are fictional and withheld.
+const people = [
+  {
+    initials: 'DK',
+    role: 'Owner and general manager',
+    note: 'Second generation; started on the deburr bench in 1998.',
+  },
+  {
+    initials: 'MR',
+    role: 'Quality manager',
+    note: 'Runs the inspection room and signs every first article report.',
+  },
+  {
+    initials: 'JT',
+    role: 'Lead CNC programmer',
+    note: 'Programs the 5-axis cell and designs most of our fixtures.',
+  },
+  {
+    initials: 'AS',
+    role: 'Applications engineer',
+    note: 'Reads incoming drawings and writes the DFM notes in your quote.',
+  },
+];
+---
+
+<Base
+  title="About"
+  description={`A ${site.employees}-person contract machine shop in Berks County, Pennsylvania, founded ${site.founded}.`}
+>
+  <PageHeader
+    title={`A ${site.employees}-person shop that has been reading drawings since ${site.founded}`}
+    intro="Family-owned, one building, two shifts. Big enough for 10,000-piece lots, small enough that the person who quotes your part can walk to the machine running it."
+  />
+
+  <Section id="history" title="History" intro="Six changes that shaped what we can make for you.">
+    <Timeline />
+  </Section>
+
+  <Section
+    id="shop"
+    title="The shop"
+    intro="22,000 sq ft under one roof. Parts move in one direction, from stock to shipping, and pass through the inspection room on the way out."
+    wide
+  >
+    <div
+      class="plan-wrap grid-paper"
+      tabindex="0"
+      role="region"
+      aria-label="Shop floor plan, scrolls sideways on small screens"
+    >
+      <ShopPlan />
+    </div>
+    <p class="scroll-hint">Scroll sideways to see the whole plan.</p>
+  </Section>
+
+  <Section id="how" title="How we work">
+    <dl class="principles">
+      {principles.map((p) => (
+        <div>
+          <dt>{p.title}</dt>
+          <dd>{p.text}</dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+
+  <Section
+    id="people"
+    title="Who you will talk to"
+    intro="Names are withheld in this demo; monograms stand in for photos."
+  >
+    <ul class="people">
+      {people.map((p) => (
+        <li>
+          <Monogram initials={p.initials} />
+          <div>
+            <p class="role">{p.role}</p>
+            <p class="note">{p.note}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </Section>
+</Base>
+
+<style>
+  .plan-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    padding: var(--space-4);
+  }
+  .scroll-hint {
+    margin-block-start: var(--space-2);
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+  @media (min-width: 48rem) {
+    .scroll-hint {
+      display: none;
+    }
+  }
+  .principles {
+    margin: 0;
+    border-block-start: 2px solid var(--ink);
+  }
+  .principles div {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--line);
+  }
+  .principles dt {
+    font-size: var(--step-1);
+    font-weight: 600;
+  }
+  .principles dd {
+    margin: 0;
+    color: var(--steel);
+  }
+  .people {
+    display: grid;
+    gap: var(--space-4) var(--gutter);
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 40rem) {
+    .people {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .people li {
+    display: flex;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .role {
+    font-weight: 600;
+  }
+  .note {
+    color: var(--steel);
+  }
+</style>

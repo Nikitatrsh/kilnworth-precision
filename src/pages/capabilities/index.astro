@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import CapabilityExplorer from '../../components/interactive/CapabilityExplorer.astro';
+import PrintButton from '../../components/PrintButton.astro';
+import { site } from '../../config/site';
+---
+
+<Base
+  title="Capabilities"
+  description="5-axis milling, CNC and Swiss-type turning, wire EDM: part envelopes, tolerances and materials, with a filter to check your part."
+>
+  <PageHeader
+    title="Can we make your part?"
+    intro="Pick the material, the largest dimension and the tolerance you need. The list shows which of our processes can do it."
+  >
+    <PrintButton label="Print the one-page capability sheet" />
+  </PageHeader>
+
+  <div class="container">
+    <CapabilityExplorer />
+    <p class="after">
+      Every process ends in the same place:{' '}
+      <a href="/capabilities/inspection-finishing">inspection and finishing</a>, with CMM reports
+      and certs. Full material notes are on the <a href="/materials">materials page</a>.
+    </p>
+    <p class="print-only">
+      {site.legalName}, {site.address.street}, {site.address.city}, {site.address.region}.{' '}
+      {site.phone.display},{site.email}. Portfolio demo: fictional company.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .after {
+    margin-block-start: var(--space-6);
+    color: var(--steel);
+  }
+  .print-only {
+    display: none;
+  }
+</style>

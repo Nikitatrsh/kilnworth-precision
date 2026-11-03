@@ -1,0 +1,67 @@
+---
+// inch/mm switch for the whole site. Only shown when JS runs; without JS inches stay.
+---
+
+<div class="units" role="group" aria-label="Units">
+  <button type="button" data-set-unit="in">
+    in
+  </button>
+  <button type="button" data-set-unit="mm">
+    mm
+  </button>
+</div>
+
+<script>
+  import type { Unit } from '../lib/units';
+
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-set-unit]');
+
+  function sync() {
+    for (const b of buttons)
+      b.setAttribute('aria-pressed', String(b.dataset.setUnit === root.dataset.unit));
+  }
+  for (const b of buttons) {
+    b.addEventListener('click', () => {
+      const unit = b.dataset.setUnit as Unit;
+      root.dataset.unit = unit;
+      try {
+        localStorage.setItem('kp-unit', unit);
+      } catch {
+        /* not persisted in private mode */
+      }
+      sync();
+      document.dispatchEvent(new CustomEvent('unitchange', { detail: unit }));
+    });
+  }
+  sync();
+</script>
+
+<style>
+  .units {
+    display: none;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  :global(.js) .units {
+    display: inline-flex;
+  }
+  .units button {
+    min-block-size: calc(var(--tap) - 2px);
+    min-inline-size: var(--tap);
+    padding-inline: var(--space-2);
+    background: transparent;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--steel);
+    cursor: pointer;
+  }
+  .units button + button {
+    border-inline-start: 1px solid var(--line-strong);
+  }
+  .units button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--white);
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+// Cannulated bone screw (Swiss-turned case study). Side view, 180 user units = 1 in.
+// Ø0.157 in × 1.850 in, Ø0.051 in through-hole shown as hidden lines.
+import './drawing.css';
+import DwgDefs from './DwgDefs.astro';
+import DwgValue from './DwgValue.astro';
+
+interface Props {
+  id: string;
+  class?: string;
+}
+const { id, class: cls } = Astro.props;
+const arrow = `url(#${id}-arrow)`;
+const arrowBlue = `url(#${id}-arrow-blue)`;
+---
+
+<svg class:list={['dwg', cls]} viewBox="0 0 420 190" role="img" aria-labelledby={`${id}-title`}>
+  <title id={`${id}-title`}>
+    Drawing of a cannulated titanium bone screw, 1.850 inches long, 0.157 inch diameter held to plus or
+    minus 0.0002 inch.
+  </title>
+  <DwgDefs id={id} />
+  <path class="ctr" d="M16 96H380"></path>
+  <!-- head, shank with chamfered tip -->
+  <path class="obj" d="M30 75H48V117H30Z"></path>
+  <path class="obj" d="M48 82H355L363 88V104L355 110H48"></path>
+  <path class="obj" d="M355 82V110"></path>
+  <!-- thread minor diameter, thin lines (simplified thread convention) -->
+  <path class="dim" d="M150 85.5H355M150 106.5H355M150 82V110"></path>
+  <!-- cannulation -->
+  <path class="hid" d="M30 91.5H363M30 100.5H363"></path>
+  <!-- overall length -->
+  <path class="dim" d="M30 122V160M363 112V160"></path>
+  <path class="dim" d="M30 152H363" marker-start={arrow} marker-end={arrow}></path>
+  <DwgValue x={196} y={146} value="1.850" />
+  <!-- the diameter that mattered -->
+  <path class="blue" d="M250 82 266 44H286" marker-start={arrowBlue}></path>
+  <DwgValue x={290} y={49} value="0.157" before="Ø" tol="0.0002" anchor="start" class="blue" />
+  <path class="dim" d="M110 91.5 124 44H144" marker-start={arrow}></path>
+  <DwgValue x={148} y={48} value="0.051" before="Ø" after=" THRU" anchor="start" class="small" />
+</svg>

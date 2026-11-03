@@ -1,0 +1,21 @@
+---
+// A dimension or tolerance. Written in inches; both units are rendered and CSS shows
+// the visitor's choice (see UnitToggle). Pass the value as a string to keep its precision.
+import { formatInch, formatMm } from '../lib/units';
+
+interface Props {
+  value: string;
+  tol?: boolean;
+}
+const { value, tol } = Astro.props;
+---
+
+<!-- One line, no whitespace inside: otherwise "±0.0005 in." renders as "±0.0005 in ." -->
+<!-- prettier-ignore -->
+<span class="num dim"><span class="u-in">{formatInch(value, { tol })}</span><span class="u-mm">{formatMm(value, { tol })}</span></span>
+
+<style>
+  .dim {
+    white-space: nowrap;
+  }
+</style>

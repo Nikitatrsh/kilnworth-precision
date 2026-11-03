@@ -1,0 +1,115 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import Industries from '../components/home/Industries.astro';
+
+const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
+const asks = [
+  {
+    who: 'Medical device buyers ask',
+    a: 'Can you support our device history record?',
+    b: 'Yes: lot numbers on every part, material certs per heat, passivation certs from a validated partner, and a process that does not change without notice.',
+  },
+  {
+    who: 'Aerospace buyers ask',
+    a: 'Do you read flow-downs before quoting?',
+    b: 'Yes. Special processes, source restrictions and FAI requirements are listed in the quote so nothing appears after the PO.',
+  },
+  {
+    who: 'Automation builders ask',
+    a: 'Can you hold stock for scheduled releases?',
+    b: 'Yes, on blanket orders. We machine the lot, keep finished parts on the shelf and ship on your schedule.',
+  },
+];
+---
+
+<Base
+  title="Industries"
+  description="Contract machining for medical devices, aerospace and defense, and industrial automation."
+>
+  <PageHeader
+    title="Who we machine for"
+    intro="Three industries make up almost all of our work. Each asks for different paperwork, and we plan the job around it."
+  />
+
+  <Section id="overview" title="Industries" wide>
+    <Industries />
+  </Section>
+
+  <Section id="questions" title="What buyers ask first" wide>
+    <dl class="asks">
+      {asks.map((x) => (
+        <div>
+          <dt>
+            <span class="who">{x.who}</span> {x.a}
+          </dt>
+          <dd>{x.b}</dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+
+  <Section id="examples" title="Examples">
+    <ul class="examples">
+      {cases.map((c) => (
+        <li>
+          <span class="ind">{c.data.industry}</span>
+          <a href={`/work/${c.id}`}>{c.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+</Base>
+
+<style>
+  .asks {
+    margin: 0;
+    border-block-start: 2px solid var(--ink);
+  }
+  .asks div {
+    display: grid;
+    gap: var(--space-2) var(--gutter);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--line);
+  }
+  @media (min-width: 52rem) {
+    .asks div {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+  dt {
+    font-weight: 600;
+  }
+  .who {
+    display: block;
+    font-weight: 400;
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+  dd {
+    margin: 0;
+    color: var(--steel);
+  }
+  .examples {
+    padding: 0;
+    list-style: none;
+    border-block-start: 2px solid var(--ink);
+  }
+  .examples li {
+    display: grid;
+    padding-block: var(--space-3);
+    border-block-end: 1px solid var(--line);
+  }
+  .ind {
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+  .examples a {
+    font-weight: 600;
+    min-block-size: var(--tap);
+    display: inline-flex;
+    align-items: center;
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+// Initials in a square, standing in for a portrait (the brief rules out faces).
+interface Props {
+  initials: string;
+  size?: 'sm' | 'md';
+}
+const { initials, size = 'md' } = Astro.props;
+---
+
+<span class:list={['mono-gram', size]} aria-hidden="true">
+  {initials}
+</span>
+
+<style>
+  .mono-gram {
+    flex: none;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ink);
+    font-stretch: var(--width-display);
+    font-weight: 700;
+  }
+  .sm {
+    inline-size: 3rem;
+    block-size: 3rem;
+    font-size: var(--step--1);
+  }
+  .md {
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+  }
+</style>

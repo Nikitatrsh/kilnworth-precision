@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import Hero from '../components/home/Hero.astro';
+import CapabilityTable from '../components/CapabilityTable.astro';
+import ToleranceRuler from '../components/interactive/ToleranceRuler.astro';
+import WorkList from '../components/home/WorkList.astro';
+import Routing from '../components/home/Routing.astro';
+import Quality from '../components/home/Quality.astro';
+import Industries from '../components/home/Industries.astro';
+import Review from '../components/home/Review.astro';
+import { organizationLd } from '../lib/structured-data';
+import { site } from '../config/site';
+---
+
+<Base title={site.name} jsonLd={organizationLd()}>
+  <Hero />
+
+  <Section
+    id="machine"
+    title="What we machine"
+    intro="Four processes under one roof, so a part that needs milling, turning and a wire-cut slot stays with one shop and one set of paperwork."
+    link={{ href: '/capabilities', label: 'Compare all capabilities and materials' }}
+  >
+    <CapabilityTable machiningOnly />
+  </Section>
+
+  <Section
+    id="tight"
+    title="How tight is ±0.0005 in?"
+    intro="Tolerances are hard to picture. Here they are to scale against things you have held. Move the slider to compare."
+  >
+    <ToleranceRuler />
+  </Section>
+
+  <Section
+    id="work"
+    title="Recent work"
+    intro="Three jobs, with the numbers that mattered to the buyer."
+    link={{ href: '/work', label: 'All case studies' }}
+    wide
+  >
+    <WorkList />
+  </Section>
+
+  <Section
+    id="process"
+    title="From drawing to parts"
+    intro="Every order follows the same route. You always know which operation your parts are on."
+    link={{ href: '/rfq', label: 'Start at Op 10: request a quote' }}
+    wide
+  >
+    <Routing />
+  </Section>
+
+  <Section
+    id="quality"
+    title="How we check"
+    intro="A tolerance is only as good as the measurement behind it."
+    link={{ href: '/quality', label: 'Quality system in detail' }}
+    wide
+  >
+    <Quality />
+  </Section>
+
+  <Section id="industries" title="Who we machine for" wide>
+    <Industries />
+  </Section>
+
+  <Section id="review" title="What buyers say" wide>
+    <Review />
+  </Section>
+</Base>

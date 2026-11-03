@@ -1,0 +1,104 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import CaseSpecs from '../../components/CaseSpecs.astro';
+import Button from '../../components/Button.astro';
+import HousingDrawing from '../../components/drawings/HousingDrawing.astro';
+import ShaftDrawing from '../../components/drawings/ShaftDrawing.astro';
+import ManifoldDrawing from '../../components/drawings/ManifoldDrawing.astro';
+
+export async function getStaticPaths() {
+  const cases = await getCollection('cases');
+  return cases.map((c) => ({ params: { slug: c.id }, props: { entry: c } }));
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+const id = `case-${entry.id}`;
+---
+
+<Base title={data.title} description={`${data.part}. ${data.result}`}>
+  <PageHeader
+    title={data.title}
+    intro={data.result}
+    parent={{ href: '/work', label: 'All case studies' }}
+  >
+    <p class="industry">{data.industry}</p>
+  </PageHeader>
+
+  <div class="container layout">
+    <figure class="drawing grid-paper">
+      {data.drawing === 'housing' && <HousingDrawing id={id} />}
+      {data.drawing === 'shaft' && <ShaftDrawing id={id} />}
+      {data.drawing === 'manifold' && <ManifoldDrawing id={id} />}
+      <figcaption>{data.part}. Drawing simplified for this page.</figcaption>
+    </figure>
+
+    <div class="specs">
+      <CaseSpecs data={data} />
+    </div>
+
+    <article class="prose body">
+      <Content />
+    </article>
+
+    <aside class="cta">
+      <p>Similar part on your desk?</p>
+      <Button href="/rfq">Request a quote</Button>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .industry {
+    font-weight: 600;
+    color: var(--steel);
+  }
+  .layout {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+    align-items: start;
+  }
+  @media (min-width: 60rem) {
+    .layout {
+      grid-template-columns: 7fr 5fr;
+      grid-template-areas: 'drawing specs' 'drawing cta' 'body .';
+      grid-template-rows: auto 1fr auto; /* CTA sits right under the specs, not halfway down */
+    }
+    .drawing {
+      grid-area: drawing;
+    }
+    .specs {
+      grid-area: specs;
+    }
+    .body {
+      grid-area: body;
+    }
+    .cta {
+      grid-area: cta;
+    }
+  }
+  .drawing {
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+  }
+  figcaption {
+    margin-block-start: var(--space-3);
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+  .cta {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+    padding: var(--space-5);
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+  .cta p {
+    font-weight: 600;
+  }
+</style>

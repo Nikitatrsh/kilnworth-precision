@@ -1,0 +1,127 @@
+---
+import Button from './Button.astro';
+import { site, footerNav } from '../config/site';
+import { cleanPath } from '../lib/paths';
+
+const { address: a } = site;
+const onQuotePage = cleanPath(Astro.url.pathname) === '/rfq'; // no "request a quote" under the form itself
+---
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-cta">
+      <p class="footer-lead">
+        Send a drawing. You get a price and a DFM note in {site.quoteTurnaround}.
+      </p>
+      {!onQuotePage && <Button href="/rfq">Request a quote</Button>}
+    </div>
+
+    <address class="footer-contact">
+      <strong>{site.legalName}</strong>
+      <span>{a.street}</span>
+      <span>
+        {a.city}, {a.region} {a.postalCode}
+      </span>
+      <a href={site.phone.href}>{site.phone.display}</a>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <span>{site.hours}</span>
+    </address>
+
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        {footerNav.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container footer-base">
+    {site.demo && (
+      <p>
+        Portfolio demo by {site.demoBy}. Kilnworth Precision, its address, phone, staff, clients,
+        reviews and certifications are fictional.
+      </p>
+    )}
+    <p>
+      Drawings on this site are original illustrations. Typefaces: Archivo and IBM Plex Mono (SIL
+      OFL).
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-block-start: var(--space-section);
+    background: var(--graphite);
+    color: var(--on-graphite);
+    padding-block: var(--space-8) var(--space-6);
+  }
+  .footer a:not(.btn) {
+    color: var(--on-graphite);
+  }
+  .footer a:not(.btn):hover {
+    color: var(--white);
+  }
+  .footer :focus-visible {
+    outline-color: var(--on-graphite);
+  }
+  .footer-grid {
+    display: grid;
+    gap: var(--space-7) var(--gutter);
+  }
+  @media (min-width: 60rem) {
+    .footer-grid {
+      grid-template-columns: 6fr 3fr 3fr;
+    }
+  }
+  .footer-cta {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    align-content: start;
+  }
+  .footer-lead {
+    font-size: var(--step-2);
+    font-stretch: var(--width-display);
+    font-weight: 600;
+    line-height: 1.2;
+    max-inline-size: 24ch;
+  }
+  .footer-contact {
+    display: grid;
+    gap: var(--space-1);
+    font-style: normal;
+    align-content: start;
+  }
+  .footer-contact a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    justify-self: start;
+  }
+  .footer-nav ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--gutter);
+    padding: 0;
+    list-style: none;
+  }
+  .footer-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    min-inline-size: var(--tap); /* short labels like "Work" */
+  }
+  .footer-base {
+    display: grid;
+    gap: var(--space-2);
+    margin-block-start: var(--space-7);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--graphite-rule);
+    color: var(--on-graphite-2);
+    font-size: var(--step--1);
+  }
+</style>

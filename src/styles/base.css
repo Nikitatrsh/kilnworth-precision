@@ -1,0 +1,141 @@
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  * {
+    margin: 0;
+  }
+  img,
+  svg {
+    display: block;
+    max-inline-size: 100%;
+  }
+  img {
+    block-size: auto;
+  }
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-block-start: var(--space-7);
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 620;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: var(--step-display);
+    font-stretch: var(--width-display);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-size: var(--step-3);
+    font-stretch: var(--width-display);
+  }
+  h3 {
+    font-size: var(--step-1);
+  }
+  p,
+  li {
+    max-inline-size: var(--measure);
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--blue);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  a:hover {
+    color: var(--blue-deep);
+    text-decoration-thickness: 2px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--blue-wash);
+    color: var(--ink);
+  }
+
+  /* Values a buyer would copy into a spec: tolerances, dimensions, quantities. */
+  code,
+  kbd,
+  samp,
+  .num {
+    font-family: var(--font-mono);
+    font-size: 0.94em;
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: 0;
+  }
+
+  /* Unit switch: both values are rendered at build time, CSS shows the chosen one.
+     <html data-unit> is set from config/site.ts and updated by /boot.js and UnitToggle. */
+  [data-unit='in'] .u-mm,
+  [data-unit='mm'] .u-in {
+    display: none;
+  }
+
+  table {
+    border-collapse: collapse;
+    inline-size: 100%;
+  }
+
+  hr {
+    border: 0;
+    border-block-start: 1px solid var(--line);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

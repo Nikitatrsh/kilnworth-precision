@@ -1,0 +1,45 @@
+---
+// A page section: heading column on the left (4/12), content on the right (8/12).
+// Pass `wide` to put the content under the heading at full width instead.
+interface Props {
+  id: string;
+  title: string;
+  intro?: string;
+  link?: { href: string; label: string };
+  wide?: boolean;
+}
+const { id, title, intro, link, wide = false } = Astro.props;
+---
+
+<section class="section container" aria-labelledby={id}>
+  <div class:list={[{ split: !wide }, { stack: wide }]}>
+    <div class="section-head">
+      <h2 id={id}>{title}</h2>
+      {intro && <p>{intro}</p>}
+      {link && (
+        <p>
+          <a href={link.href}>{link.label}</a>
+        </p>
+      )}
+    </div>
+    <div>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .stack {
+    display: grid;
+    gap: var(--space-6);
+  }
+  /* let wide content (tables, the shop plan) scroll inside its own wrapper instead of
+     stretching the grid track past the viewport */
+  .stack > *,
+  .split > * {
+    min-inline-size: 0;
+  }
+  .stack .section-head {
+    max-inline-size: 40rem;
+  }
+</style>

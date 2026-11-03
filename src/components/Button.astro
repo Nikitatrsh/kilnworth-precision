@@ -1,0 +1,69 @@
+---
+// Primary: solid layout blue with one chamfered corner (DESIGN.md, Components).
+// Secondary: underlined text link. Renders <a> with href, otherwise <button>.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+  variant?: 'primary' | 'secondary';
+  href?: string;
+} & HTMLAttributes<'button'>;
+
+const { variant = 'primary', href, class: className, ...rest } = Astro.props;
+const classes = ['btn', `btn-${variant}`, className];
+---
+
+{href ? (
+  <a href={href} class:list={classes}>
+    <slot />
+  </a>
+) : (
+  <button class:list={classes} {...rest}>
+    <slot />
+  </button>
+)}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--tap);
+    font-weight: 600;
+    font-size: var(--step-0);
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn-primary {
+    padding: var(--space-3) calc(var(--space-5) + var(--chamfer) / 2) var(--space-3) var(--space-5);
+    background: var(--blue);
+    color: var(--white);
+    border: 0;
+    /* 45° edge break on the top-right corner, like a chamfer on a machined block */
+    clip-path: polygon(0 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer), 100% 100%, 0 100%);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .btn-primary:hover {
+    background: var(--blue-deep);
+    color: var(--white);
+  }
+  /* clip-path would cut an outside outline, so the focus ring sits inside */
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: -5px;
+    background: var(--blue-deep);
+  }
+  .btn-secondary {
+    padding: var(--space-3) var(--space-1);
+    background: none;
+    border: 0;
+    color: var(--blue);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+  .btn-secondary:hover {
+    text-decoration-thickness: 2px;
+    color: var(--blue-deep);
+  }
+</style>

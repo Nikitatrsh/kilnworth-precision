@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../config/site';
+import { organizationLd } from '../lib/structured-data';
+
+const { address: a } = site;
+const reasons = [
+  {
+    title: 'Price a part',
+    text: 'Use the quote form; it takes the drawings and goes straight to an engineer.',
+    href: '/rfq',
+    link: 'Request a quote',
+  },
+  {
+    title: 'Check an open order',
+    text: 'Call and give the PO number. The person who answers can see the router for your lot.',
+    href: site.phone.href,
+    link: site.phone.display,
+  },
+  {
+    title: 'Send a supplier survey or NDA',
+    text: 'Email it; quality or the owner answers within two working days.',
+    href: `mailto:${site.email}`,
+    link: site.email,
+  },
+];
+---
+
+<Base
+  title="Contact"
+  description={`Phone, email and address for ${site.name}, ${a.city}, ${a.region}.`}
+  jsonLd={organizationLd()}
+>
+  <PageHeader
+    title="Contact"
+    intro="A person answers the phone during shop hours. For quotes, the form is faster: it puts your drawing in front of an engineer."
+  />
+
+  <div class="container layout">
+    <dl class="details">
+      <div>
+        <dt>Phone</dt>
+        <dd>
+          <a href={site.phone.href}>{site.phone.display}</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Email</dt>
+        <dd>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </dd>
+      </div>
+      <div>
+        <dt>Shop hours</dt>
+        <dd>{site.hours}</dd>
+      </div>
+      <div>
+        <dt>Address</dt>
+        <dd>
+          <address>
+            {site.legalName}
+            <br />
+            {a.street}
+            <br />
+            {a.city}, {a.region} {a.postalCode}
+          </address>
+        </dd>
+      </div>
+      <div>
+        <dt>Deliveries</dt>
+        <dd>
+          Dock doors on the west side of the building, 7 am to 3 pm. Box trucks and 53 ft trailers.
+        </dd>
+      </div>
+    </dl>
+
+    <div class="reasons">
+      <h2>What do you need?</h2>
+      <ul>
+        {reasons.map((r) => (
+          <li>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+            <a href={r.href}>{r.link}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: var(--space-7) var(--gutter);
+    align-items: start;
+  }
+  @media (min-width: 60rem) {
+    .layout {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+  .details {
+    margin: 0;
+    border-block-start: 2px solid var(--ink);
+  }
+  .details div {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--line);
+  }
+  dt {
+    font-size: var(--step--1);
+    font-stretch: var(--width-label);
+    font-weight: 600;
+    color: var(--steel);
+  }
+  dd {
+    margin: 0;
+    font-size: var(--step-1);
+  }
+  dd a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+  }
+  address {
+    font-style: normal;
+  }
+  .reasons {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+  .reasons ul {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-block-start: 2px solid var(--ink);
+    inline-size: 100%;
+  }
+  .reasons li {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--line);
+    max-inline-size: none;
+  }
+  .reasons li p {
+    color: var(--steel);
+  }
+  .reasons li a {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,122 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Dim from '../../components/Dim.astro';
+import Button from '../../components/Button.astro';
+
+export async function getStaticPaths() {
+  const processes = await getCollection('processes');
+  return processes.map((p) => ({ params: { slug: p.id }, props: { process: p } }));
+}
+
+const { process } = Astro.props;
+const { data } = process;
+const { Content } = await render(process);
+const materials = await getCollection('materials');
+const names = data.materials.map((id) => materials.find((m) => m.id === id)?.data.name ?? id);
+const isInspection = process.id === 'inspection-finishing';
+---
+
+<Base title={data.title} description={data.summary}>
+  <PageHeader
+    title={data.title}
+    intro={data.summary}
+    parent={{ href: '/capabilities', label: 'All capabilities' }}
+  />
+
+  <div class="container layout">
+    <article class="prose">
+      <Content />
+    </article>
+
+    <aside class="spec" aria-label={`${data.title} at a glance`}>
+      <table>
+        <caption>At a glance</caption>
+        <tbody>
+          {data.envelope.map((e) => (
+            <tr>
+              <th scope="row">{e.label}</th>
+              <td>
+                <Dim value={e.value} />
+              </td>
+            </tr>
+          ))}
+          <tr>
+            <th scope="row">{isInspection ? 'Measuring uncertainty' : 'Standard tolerance'}</th>
+            <td>
+              <Dim value={data.toleranceStandard} tol />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{isInspection ? 'Best uncertainty' : 'Tightest, by agreement'}</th>
+            <td class="hi">
+              <Dim value={data.toleranceBest} tol />
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Lot size</th>
+            <td>{data.typicalLot}</td>
+          </tr>
+          <tr>
+            <th scope="row">Equipment</th>
+            <td>{data.equipment}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2>Materials</h2>
+      <p class="mats">{names.join(', ')}.</p>
+      <Button href={isInspection ? '/rfq' : `/rfq?process=${process.id}`}>Request a quote</Button>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: var(--space-7) var(--gutter);
+    align-items: start;
+  }
+  @media (min-width: 60rem) {
+    .layout {
+      grid-template-columns: 7fr 5fr;
+    }
+  }
+  .spec {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding: var(--space-5);
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+  caption {
+    text-align: start;
+    font-weight: 600;
+    padding-block-end: var(--space-2);
+  }
+  th,
+  td {
+    padding: var(--space-2) 0;
+    border-block-start: 1px solid var(--line);
+    text-align: start;
+    vertical-align: baseline;
+  }
+  th {
+    font-weight: 500;
+    color: var(--steel);
+    padding-inline-end: var(--space-4);
+    font-size: var(--step--1);
+  }
+  .hi {
+    color: var(--blue);
+  }
+  h2 {
+    font-size: var(--step-0);
+    font-stretch: 100%;
+  }
+  .mats {
+    color: var(--steel);
+    margin-block-start: calc(-1 * var(--space-3));
+  }
+</style>

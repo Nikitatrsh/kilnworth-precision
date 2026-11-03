@@ -1,0 +1,107 @@
+---
+// Floor plan of the (fictional) shop: 150 × 75 ft building, 4 user units = 1 ft.
+// Dashed rectangles are machine footprints; the blue room is temperature-controlled.
+import './drawing.css';
+import DwgDefs from './DwgDefs.astro';
+
+const id = 'plan';
+const rooms = [
+  { x: 20, y: 20, w: 120, h: 120, label: 'Office' },
+  { x: 20, y: 140, w: 120, h: 80, label: 'Inspection', blue: true },
+  { x: 20, y: 220, w: 120, h: 100, label: 'Shipping' },
+  { x: 140, y: 20, w: 280, h: 150, label: 'Milling: 5-axis ×4, 3-axis ×6' },
+  { x: 140, y: 170, w: 280, h: 150, label: 'Turning ×6, Swiss ×5' },
+  { x: 420, y: 20, w: 100, h: 120, label: 'Wire EDM' },
+  { x: 520, y: 20, w: 100, h: 120, label: 'Stock' },
+  { x: 420, y: 140, w: 200, h: 180, label: 'Deburr and marking' },
+];
+// Machine footprints (x, y, w, h)
+const machines = [
+  ...[0, 1, 2, 3].map((i) => [158 + i * 64, 44, 44, 40]), // 5-axis ×4
+  ...[0, 1, 2, 3, 4, 5].map((i) => [156 + i * 43, 112, 32, 34]), // 3-axis ×6
+  ...[0, 1, 2, 3, 4, 5].map((i) => [156 + i * 43, 194, 32, 50]), // lathes ×6
+  ...[0, 1, 2, 3, 4].map((i) => [160 + i * 52, 268, 40, 24]), // Swiss ×5
+  [436, 50, 30, 30],
+  [476, 50, 30, 30], // wire EDM ×2
+  [36, 168, 40, 30],
+  [86, 168, 40, 30], // CMMs ×2
+  ...[0, 1, 2, 3].map((i) => [436, 172 + i * 30, 70, 20]), // deburr benches ×4
+  [530, 172, 74, 40], // parts washer
+  [530, 228, 40, 30], // laser marker
+  [580, 228, 24, 24],
+  [580, 260, 24, 24], // vibratory tumblers ×2
+  ...[0, 1, 2, 3].map((i) => [534, 46 + i * 18, 74, 10]), // bar and plate racks
+  [534, 120, 34, 12], // saw
+  ...[0, 1, 2, 3].map((i) => [36 + (i % 2) * 48, 46 + Math.floor(i / 2) * 36, 36, 22]), // desks
+  [36, 250, 60, 22], // packing table
+];
+// Small labels for equipment that is not obvious from its outline (x, y, text)
+const notes: [number, number, string][] = [
+  [436, 300, 'Benches'],
+  [538, 196, 'Washer'],
+  [532, 274, 'Laser'],
+  [566, 300, 'Tumblers'],
+  [572, 130, 'Saw'],
+];
+---
+
+<svg class="dwg plan" viewBox="0 0 640 372" role="img" aria-labelledby={`${id}-title`}>
+  <title id={`${id}-title`}>
+    Floor plan of the shop: office, inspection room, shipping, milling bay, turning and Swiss bay, wire
+    EDM room, stock storage and finishing area, with machine footprints.
+  </title>
+  <DwgDefs id={id} />
+  {rooms.map((r) => (
+    <>
+      <rect class={r.blue ? 'blue' : 'obj'} x={r.x} y={r.y} width={r.w} height={r.h} />
+      <text class="dwg-t label room" x={r.x + 8} y={r.y + 18}>
+        {r.label}
+      </text>
+    </>
+  ))}
+  {machines.map(([x, y, w, h]) => (
+    <rect class="hid machine" x={x} y={y} width={w} height={h} />
+  ))}
+  {notes.map(([x, y, text]) => (
+    <text class="dwg-t small note" x={x} y={y}>
+      {text}
+    </text>
+  ))}
+  <!-- dock doors: gaps in the west wall -->
+  <path class="fill-paper" d="M17 240h6v28h-6zM17 280h6v28h-6z"></path>
+  <!-- outer wall drawn last so it sits on top -->
+  <rect class="obj wall" x="20" y="20" width="600" height="300"></rect>
+  <!-- scale bar: 0, 25, 50 ft -->
+  <path class="dim" d="M20 350H220M20 344V356M120 344V356M220 344V356"></path>
+  <text class="dwg-t small" x="20" y="340" text-anchor="middle">
+    0
+  </text>
+  <text class="dwg-t small" x="120" y="340" text-anchor="middle">
+    25
+  </text>
+  <text class="dwg-t small" x="220" y="340" text-anchor="middle">
+    50 ft
+  </text>
+  <text class="dwg-t small" x="620" y="350" text-anchor="end">
+    Blue: temperature-controlled, 68 °F ±1 °F
+  </text>
+</svg>
+
+<style>
+  .plan {
+    inline-size: 100%;
+    max-inline-size: 56rem; /* keeps labels near drawing size on wide screens */
+    min-inline-size: 40rem; /* below this the labels get too small; the wrapper scrolls instead */
+  }
+  /* .plan prefix outranks the shared .dwg .dwg-t sizes from drawing.css */
+  .plan .room {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+  .plan .note {
+    font-size: 9px;
+  }
+  .wall {
+    stroke-width: 3px;
+  }
+</style>

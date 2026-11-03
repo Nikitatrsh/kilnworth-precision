@@ -1,0 +1,117 @@
+/* Styles for ToleranceRuler.astro. Every selector starts at .ruler to stay local. */
+.ruler {
+  display: grid;
+  gap: var(--space-5);
+}
+.ruler .readout {
+  display: grid;
+  gap: var(--space-2);
+  min-block-size: 9.5rem; /* room for the longest note, so the ruler below never jumps */
+  align-content: start;
+}
+.ruler .value {
+  font-size: var(--step-4);
+  font-stretch: var(--width-display);
+  font-weight: 620;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--blue);
+}
+.ruler .compare {
+  font-weight: 600;
+}
+.ruler .note {
+  color: var(--steel);
+}
+
+.ruler .stage {
+  display: block;
+  border: 1px solid var(--line);
+}
+.ruler .band {
+  fill: var(--blue-wash);
+  transition:
+    x var(--dur) var(--ease-out),
+    width var(--dur) var(--ease-out);
+}
+.ruler .edge {
+  stroke: var(--blue);
+  stroke-width: var(--stroke);
+}
+.ruler .nominal {
+  stroke: var(--steel);
+  stroke-width: var(--stroke);
+  stroke-dasharray: 18 4 3 4;
+}
+.ruler .ref {
+  fill: var(--ink);
+}
+.ruler .ref-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  fill: var(--ink);
+  /* paper-colored halo keeps labels legible where they cross the band edges */
+  stroke: var(--paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+.ruler .control {
+  display: grid;
+  gap: var(--space-1);
+}
+.ruler .control label {
+  font-size: var(--step--1);
+  font-stretch: var(--width-label);
+  font-weight: 600;
+  color: var(--steel);
+}
+.ruler .ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--1);
+  color: var(--steel);
+}
+
+/* Range input: a scribed line and a square blue slider */
+.ruler input[type='range'] {
+  appearance: none;
+  inline-size: 100%;
+  block-size: var(--tap);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.ruler input[type='range']::-webkit-slider-runnable-track {
+  block-size: 2px;
+  background: var(--ink);
+}
+.ruler input[type='range']::-moz-range-track {
+  block-size: 2px;
+  background: var(--ink);
+}
+.ruler input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  inline-size: 22px;
+  block-size: 22px;
+  margin-block-start: -10px;
+  background: var(--blue);
+  border: 2px solid var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+.ruler input[type='range']::-moz-range-thumb {
+  inline-size: 18px;
+  block-size: 18px;
+  background: var(--blue);
+  border: 2px solid var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+.ruler input[type='range']:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}

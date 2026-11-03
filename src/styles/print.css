@@ -1,0 +1,88 @@
+/* Print: any page prints cleanly; /capabilities becomes a one-page capability sheet on US Letter.
+   Unlayered on purpose, so these rules win over component styles when printing. */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+  html {
+    font-size: 11px;
+  }
+  body {
+    background: #fff;
+  }
+  .demo,
+  .skip-link,
+  .menu-toggle,
+  .nav,
+  .footer,
+  [data-filters],
+  [data-print],
+  [data-status],
+  [data-empty],
+  .after {
+    display: none !important;
+  }
+  .header {
+    border-block-end: 2px solid #000;
+  }
+  .page-header {
+    padding-block: 0.5rem 1rem !important;
+  }
+  .page-header h1 {
+    font-size: 2rem !important;
+  }
+  /* The sheet lists every process, whatever was filtered on screen. */
+  [data-process][hidden] {
+    display: grid !important;
+  }
+  [data-process] {
+    break-inside: avoid;
+    padding-block: 0.6rem !important;
+    grid-template-columns: 4fr 3fr 5fr !important;
+    grid-template-areas: 'title nums mats' 'summary nums mats' !important;
+  }
+  [data-process] h2 {
+    grid-area: title;
+    font-size: 1.4rem !important;
+  }
+  [data-process] .summary {
+    grid-area: summary;
+  }
+  [data-process] .nums {
+    grid-area: nums;
+  }
+  [data-process] .mats {
+    grid-area: mats;
+    gap: 0 0.3rem !important;
+  }
+  /* materials as a comma list instead of chips */
+  [data-process] .mats li {
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+    font-size: 0.9rem !important;
+  }
+  [data-process] .mats li:not(:last-child)::after {
+    content: ',';
+  }
+  [data-process] .mats li[data-hit] {
+    font-weight: 700;
+  }
+  .header,
+  .header-inner {
+    background: #fff !important;
+  }
+  .print-only {
+    display: block !important;
+    margin-block-start: 1rem;
+    font-size: 0.9rem;
+  }
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+  .grid-paper {
+    background: none !important;
+  }
+}

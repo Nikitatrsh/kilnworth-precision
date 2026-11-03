@@ -1,0 +1,89 @@
+---
+// Not found. The numeral is drawn as a dimensioned feature that missed its tolerance.
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import '../components/drawings/drawing.css';
+import DwgDefs from '../components/drawings/DwgDefs.astro';
+---
+
+<Base title="Page not found" description="This page does not exist.">
+  <section class="container nf" aria-labelledby="nf-title">
+    <svg class="dwg nf-dwg" viewBox="0 0 520 220" aria-hidden="true">
+      <DwgDefs id="nf" />
+      <text class="big" x="260" y="150" text-anchor="middle">
+        404
+      </text>
+      <path class="dim" d="M60 168V200M460 168V200"></path>
+      <path
+        class="blue"
+        d="M60 192H460"
+        marker-start="url(#nf-arrow-blue)"
+        marker-end="url(#nf-arrow-blue)"
+      ></path>
+      <text class="dwg-t blue" x="260" y="186" text-anchor="middle">
+        NOT FOUND ±0.000
+      </text>
+    </svg>
+    <h1 id="nf-title">This page is out of tolerance</h1>
+    <p>
+      The address may be mistyped, or the page moved when we reorganized the site. These will get
+      you back on the print:
+    </p>
+    <ul class="links">
+      <li>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/capabilities">Capabilities</a>
+      </li>
+      <li>
+        <a href="/work">Case studies</a>
+      </li>
+      <li>
+        <a href="/contact">Contact</a>
+      </li>
+    </ul>
+    <Button href="/rfq">Request a quote</Button>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-8) 0;
+    text-align: center;
+  }
+  .nf-dwg {
+    inline-size: min(100%, 32rem);
+  }
+  .big {
+    font-family: var(--font-sans);
+    font-size: 150px;
+    font-stretch: var(--width-display);
+    font-weight: 700;
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.25px;
+  }
+  h1 {
+    font-size: var(--step-4);
+  }
+  p {
+    color: var(--steel);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+  }
+</style>

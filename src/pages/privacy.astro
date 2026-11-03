@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../config/site';
+---
+
+<Base title="Privacy" description="What this demo site collects: nothing.">
+  <PageHeader
+    title="Privacy"
+    intro="Short version: this is a portfolio demo and it collects nothing."
+  />
+  <div class="container prose">
+    <h2>This site</h2>
+    <p>
+      {site.name} is a fictional company. This website is a design and engineering demo by{' '}
+      {site.demoBy}. It has no analytics, no cookies, no tracking pixels and no third-party scripts
+      or fonts.
+    </p>
+    <h2>The quote form</h2>
+    <p>
+      The quote form checks your entries in your browser and shows a confirmation. Nothing you type
+      or attach is uploaded, sent or stored anywhere. Closing the tab discards it.
+    </p>
+    <h2>What the browser remembers</h2>
+    <p>
+      Two settings are saved in your browser's local storage so pages look the way you left them:
+      whether you hid the demo notice, and whether you chose inches or millimeters. They never leave
+      your device. Clear your site data to remove them.
+    </p>
+    <h2>Hosting</h2>
+    <p>
+      Like any website, the server that delivers these pages may keep standard access logs (IP
+      address, time, page requested) for security and operations, under the host's own policy.
+    </p>
+    <h2>On a real client site</h2>
+    <p>
+      A live version would explain what the quote form sends, where it is stored, who can see it and
+      for how long, and how to ask for deletion.
+    </p>
+  </div>
+</Base>

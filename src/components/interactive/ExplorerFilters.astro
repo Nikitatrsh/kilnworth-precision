@@ -1,0 +1,149 @@
+---
+// Filter form for CapabilityExplorer. Hidden without JS (filtering needs explorer.ts).
+import { getCollection } from 'astro:content';
+import { TOLERANCE_STEPS } from '../../lib/tolerance';
+import { formatInch, formatMm } from '../../lib/units';
+
+interface Props {
+  processes: { id: string; title: string }[];
+}
+const { processes } = Astro.props;
+const materials = await getCollection('materials');
+const families = [...new Set(materials.map((m) => m.data.family))];
+---
+
+<form class="filters" data-filters aria-label="Filter capabilities">
+  <div class="filter">
+    <label for="x-material">Material</label>
+    <select id="x-material" name="material">
+      <option value="">Any material</option>
+      {families.map((f) => (
+        <optgroup label={f}>
+          {materials
+            .filter((m) => m.data.family === f)
+            .map((m) => (
+              <option value={m.id}>{m.data.name}</option>
+            ))}
+        </optgroup>
+      ))}
+    </select>
+  </div>
+  <div class="filter">
+    <label for="x-size">Largest dimension of the part</label>
+    <div class="with-unit">
+      <input id="x-size" name="size" type="number" min="0" step="any" inputmode="decimal" />
+      <span class="unit-suffix" aria-hidden="true">
+        <span class="u-in">in</span>
+        <span class="u-mm">mm</span>
+      </span>
+    </div>
+  </div>
+  <div class="filter">
+    <label for="x-tol">Tightest tolerance needed</label>
+    <select id="x-tol" name="tol">
+      <option value="">Any tolerance</option>
+      {TOLERANCE_STEPS.map((s) => (
+        <option value={s.value}>
+          {formatInch(s.value, { tol: true })} ({formatMm(s.value, { tol: true })})
+        </option>
+      ))}
+    </select>
+  </div>
+  <fieldset class="filter processes">
+    <legend>Process</legend>
+    {processes.map((p) => (
+      <label class="check">
+        <input type="checkbox" name="process" value={p.id} />
+        {p.title}
+      </label>
+    ))}
+  </fieldset>
+  <button type="reset" class="reset">
+    Clear filters
+  </button>
+</form>
+
+<style>
+  .filters {
+    display: none;
+    gap: var(--space-4) var(--gutter);
+    padding: var(--space-5);
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+  :global(.js) .filters {
+    display: grid;
+  }
+  @media (min-width: 52rem) {
+    .filters {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .processes {
+      grid-column: 1 / -1;
+    }
+  }
+  .filter {
+    display: grid;
+    gap: var(--space-1);
+    align-content: start;
+  }
+  label,
+  legend {
+    font-weight: 600;
+  }
+  select,
+  input[type='number'] {
+    inline-size: 100%;
+    min-block-size: var(--tap);
+    padding: var(--space-2) var(--space-3);
+    background: var(--white);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  .with-unit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .unit-suffix {
+    font-family: var(--font-mono);
+    color: var(--steel);
+  }
+  .processes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-5);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .processes legend {
+    inline-size: 100%;
+    margin-block-end: var(--space-1);
+  }
+  /* the whole label is the click target, at least 44px tall */
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--tap);
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .check input {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    accent-color: var(--blue);
+  }
+  .reset {
+    justify-self: start;
+    min-block-size: var(--tap);
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--blue);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+</style>

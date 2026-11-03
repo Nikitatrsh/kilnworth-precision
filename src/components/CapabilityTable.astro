@@ -1,0 +1,140 @@
+---
+// Processes compared on the numbers buyers ask about first. Data: src/content/processes/*.md
+// On narrow screens each row becomes a small block; labels come from data-label.
+import { getCollection } from 'astro:content';
+import Dim from './Dim.astro';
+
+interface Props {
+  /** Leave out inspection, whose "tolerance" is measuring uncertainty, not machining. */
+  machiningOnly?: boolean;
+}
+const { machiningOnly = false } = Astro.props;
+
+const processes = (await getCollection('processes'))
+  .filter((p) => !machiningOnly || p.id !== 'inspection-finishing')
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="cap-table">
+  <table>
+    <caption class="visually-hidden">Machining processes, part size and tolerances</caption>
+    <thead>
+      <tr>
+        <th scope="col">Process</th>
+        <th scope="col" class="n">
+          Largest part
+        </th>
+        <th scope="col" class="n">
+          Standard tolerance
+        </th>
+        <th scope="col" class="n">
+          Tightest, by agreement
+        </th>
+        <th scope="col">Typical lot</th>
+      </tr>
+    </thead>
+    <tbody>
+      {processes.map((p) => (
+        <tr>
+          <th scope="row">
+            <a href={`/capabilities/${p.id}`}>{p.data.title}</a>
+          </th>
+          <td class="n" data-label="Largest part">
+            <Dim value={p.data.maxSize} />
+          </td>
+          <td class="n" data-label="Standard">
+            <Dim value={p.data.toleranceStandard} tol />
+          </td>
+          <td class="n strong" data-label="Tightest">
+            <Dim value={p.data.toleranceBest} tol />
+          </td>
+          <td data-label="Typical lot">{p.data.typicalLot}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .cap-table {
+    border-block-start: 2px solid var(--ink);
+  }
+  th,
+  td {
+    padding: var(--space-4) var(--space-3);
+    text-align: start;
+    vertical-align: baseline;
+    border-block-end: 1px solid var(--line);
+  }
+  thead th {
+    padding-block: var(--space-3);
+    font-size: var(--step--1);
+    font-stretch: var(--width-label);
+    font-weight: 600;
+    color: var(--steel);
+    background: var(--paper-2);
+  }
+  .n {
+    text-align: end;
+  }
+  tbody th {
+    font-weight: 600;
+    font-size: var(--step-1);
+    font-stretch: var(--width-display);
+    letter-spacing: -0.01em;
+  }
+  tbody th a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  tbody th a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+  .strong {
+    color: var(--blue);
+  }
+  td:last-child {
+    color: var(--steel);
+  }
+
+  /* Narrow: each process becomes a block with labeled values in two columns. */
+  @media (max-width: 47.99rem) {
+    thead {
+      display: none;
+    }
+    table,
+    tbody,
+    tr {
+      display: block;
+    }
+    tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3) var(--space-4);
+      padding-block: var(--space-4);
+      border-block-end: 1px solid var(--line);
+    }
+    tbody th {
+      grid-column: 1 / -1;
+    }
+    th,
+    td,
+    .n {
+      padding: 0;
+      border: 0;
+      text-align: start;
+    }
+    td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: var(--step--1);
+      font-stretch: var(--width-label);
+      font-weight: 600;
+      color: var(--steel);
+    }
+  }
+</style>

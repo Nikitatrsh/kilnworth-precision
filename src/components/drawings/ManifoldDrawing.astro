@@ -1,0 +1,49 @@
+---
+// Pneumatic manifold (316L case study). Front view, 60 user units = 1 in.
+// 6.000 × 2.000 in block, five Ø0.375 ports on 1.000 in pitch meeting a hidden Ø0.250 gallery.
+import './drawing.css';
+import DwgDefs from './DwgDefs.astro';
+import DwgValue from './DwgValue.astro';
+
+interface Props {
+  id: string;
+  class?: string;
+}
+const { id, class: cls } = Astro.props;
+const arrow = `url(#${id}-arrow)`;
+const arrowBlue = `url(#${id}-arrow-blue)`;
+const ports = [90, 150, 210, 270, 330];
+---
+
+<svg class:list={['dwg', cls]} viewBox="0 0 420 232" role="img" aria-labelledby={`${id}-title`}>
+  <title id={`${id}-title`}>
+    Drawing of a stainless steel valve manifold, 6.000 by 2.000 inches, with five 0.375 inch ports on a
+    1.000 inch pitch meeting an internal gallery.
+  </title>
+  <DwgDefs id={id} />
+  <rect class="obj" x="30" y="50" width="360" height="120"></rect>
+  <!-- internal gallery, drilled from the left end and plugged -->
+  <path class="hid" d="M30 102.5H350M30 117.5H350M350 102.5 357 110 350 117.5"></path>
+  <path class="ctr" d="M18 110H372"></path>
+  {ports.map((x) => (
+    <>
+      <circle class="obj" cx={x} cy="110" r="11.25" />
+      <path class="ctr" d={`M${x} 88V132`} />
+    </>
+  ))}
+  <!-- overall width and port pitch -->
+  <path class="dim" d="M30 176V220M390 176V220M90 124V196M150 124V196"></path>
+  <path class="dim" d="M30 214H390" marker-start={arrow} marker-end={arrow}></path>
+  <DwgValue x={250} y={208} value="6.000" />
+  <path class="dim" d="M30 190H90" marker-start={arrow} marker-end={arrow}></path>
+  <DwgValue x={60} y={185} value="1.000" class="small" />
+  <path class="dim" d="M90 190H150" marker-start={arrow} marker-end={arrow}></path>
+  <DwgValue x={124} y={185} value="1.000" after=" TYP" class="small" />
+  <!-- height -->
+  <path class="dim" d="M396 50H414M396 170H414"></path>
+  <path class="dim" d="M408 50V170" marker-start={arrow} marker-end={arrow}></path>
+  <DwgValue x={402} y={110} value="2.000" rotate={-90} />
+  <!-- the callout that mattered -->
+  <path class="blue" d="M262 102 242 26H222" marker-start={arrowBlue}></path>
+  <DwgValue x={218} y={31} value="0.375" tol="0.001" before="5× Ø" anchor="end" class="blue" />
+</svg>

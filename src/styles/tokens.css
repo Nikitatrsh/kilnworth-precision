@@ -1,0 +1,72 @@
+/* Layer order (declared once, here, because this file is imported first): later layers win.
+   Component <style> blocks are unlayered and win over all of these. */
+@layer reset, tokens, base, layout, components, utilities;
+
+/* Design tokens. Every color, size and space on the site comes from here. See DESIGN.md. */
+@layer tokens {
+  :root {
+    /* Color */
+    --paper: #f3f5f4;
+    --paper-2: #e5eae9;
+    --white: #ffffff;
+    --grid: #d6dddd;
+    --line: #aeb9bd; /* decorative rules only, 1.8:1 */
+    --line-strong: #76838a; /* input borders, 3.6:1 */
+    --ink: #1c2428;
+    --steel: #4f5c63;
+    --blue: #1e3fae; /* layout blue, the one accent */
+    --blue-deep: #152e80;
+    --blue-wash: #dce3f5;
+    --graphite: #20292e;
+    --on-graphite: #e4eaea;
+    --on-graphite-2: #a8b5ba;
+    --graphite-rule: #3a464c; /* hairline on the dark band */
+    --error: #a3231b;
+
+    /* Type */
+    --font-sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    /* Scale: ratio 1.25 from 17px */
+    --step--1: 0.85rem;
+    --step-0: 1.0625rem;
+    --step-1: 1.33rem;
+    --step-2: 1.66rem;
+    --step-3: 2.07rem;
+    --step-4: 2.59rem;
+    --step-display: clamp(2.4rem, 1.4rem + 3.6vw, 4.4rem);
+
+    /* Archivo width axis: wide for display, narrow for labels */
+    --width-display: 112%;
+    --width-label: 88%;
+
+    --measure: 68ch;
+
+    /* Space: 4px base */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+    --space-section: clamp(4rem, 2.5rem + 6vw, 8rem);
+
+    /* Layout */
+    --container: 77.5rem; /* 1240px */
+    --gutter: clamp(1rem, 0.6rem + 1.6vw, 1.5rem);
+
+    /* Shape */
+    --radius: 2px; /* the edge break on a machined part; nothing is rounder */
+    --chamfer: 0.75rem; /* cut corner on primary buttons */
+    --stroke: 1.25px; /* the single line weight in all drawings */
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --dur-fast: 150ms;
+    --dur: 200ms;
+
+    --tap: 44px; /* minimum target size */
+  }
+}

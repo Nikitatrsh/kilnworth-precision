@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+
+const articles = (await getCollection('resources')).sort(
+  (a, b) => b.data.published.valueOf() - a.data.published.valueOf(),
+);
+const date = (d: Date) =>
+  d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+---
+
+<Base
+  title="Resources"
+  description="Practical notes for engineers and buyers: designing parts that machine well and writing RFQs that get firm prices."
+>
+  <PageHeader
+    title="Notes for engineers and buyers"
+    intro="Short, practical articles from the people who quote and inspect your parts."
+  />
+  <div class="container">
+    <ul class="list">
+      {articles.map((a) => (
+        <li>
+          <h2>
+            <a href={`/resources/${a.id}`}>{a.data.title}</a>
+          </h2>
+          <p>{a.data.summary}</p>
+          <p class="meta">
+            Published
+            <time datetime={a.data.published.toISOString().slice(0, 10)}>
+              {date(a.data.published)}
+            </time>
+            by our {a.data.author.toLowerCase()}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .list {
+    padding: 0;
+    list-style: none;
+    border-block-start: 2px solid var(--ink);
+  }
+  li {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-5);
+    border-block-end: 1px solid var(--line);
+  }
+  h2 {
+    font-size: var(--step-2);
+  }
+  h2 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  h2 a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+  .meta {
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+</style>

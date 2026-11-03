@@ -1,0 +1,74 @@
+---
+// RFQ step 1: what the part is. A drawing OR a description is required (rfq.ts checks that).
+import { getCollection } from 'astro:content';
+import Field from '../form/Field.astro';
+import Button from '../Button.astro';
+import { ACCEPT_ATTR } from '../../lib/rfq-validate';
+
+const processes = (await getCollection('processes'))
+  .filter((p) => p.id !== 'inspection-finishing')
+  .sort((a, b) => a.data.order - b.data.order);
+const materials = await getCollection('materials');
+
+const processOptions = [
+  { value: '', label: 'Choose a process' },
+  ...processes.map((p) => ({ value: p.id, label: p.data.title })),
+  { value: 'not-sure', label: 'Not sure, suggest one' },
+];
+const materialOptions = [
+  { value: '', label: 'Choose a material' },
+  ...materials.map((m) => ({ value: m.id, label: m.data.name })),
+  { value: 'other', label: 'Other or not sure (add it in notes)' },
+];
+---
+
+<fieldset class="step" data-step="0">
+  <legend>
+    <span class="step-of">Step 1 of 3</span> The part
+  </legend>
+  <Field name="part" label="Part name or number" required maxlength="120" autocomplete="off" />
+  <Field
+    name="files"
+    label="Drawings and models"
+    kind="file"
+    multiple
+    accept={ACCEPT_ATTR}
+    hint="STEP, IGES, DWG, DXF or PDF. Up to 5 files, 25 MB each. A PDF print with tolerances gets you a firmer price."
+  />
+  <ul class="file-list" data-file-list aria-live="polite"></ul>
+  <Field
+    name="description"
+    label="Describe the part"
+    optionalLabel="(required if no file)"
+    kind="textarea"
+    maxlength="2000"
+    hint="No drawing yet? Rough size, material, and the features and tolerances that matter are enough for a budget price."
+  />
+  <div class="two">
+    <Field name="process" label="Process" kind="select" required options={processOptions} />
+    <Field name="material" label="Material" kind="select" required options={materialOptions} />
+  </div>
+  <div class="two">
+    <Field
+      name="quantity"
+      label="Quantity"
+      kind="number"
+      required
+      min="1"
+      max="100000"
+      step="1"
+      inputmode="numeric"
+    />
+    <Field
+      name="breaks"
+      label="Other quantities to price"
+      hint="For example: 50, 250, 1000"
+      maxlength="80"
+    />
+  </div>
+  <div class="nav">
+    <Button type="button" data-next>
+      Continue to details
+    </Button>
+  </div>
+</fieldset>

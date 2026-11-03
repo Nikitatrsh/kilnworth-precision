@@ -1,0 +1,94 @@
+/* Line conventions for every drawing (ASME Y14.2 style). One stroke width: --stroke.
+   Imported by drawing components; plain CSS so it also applies to SVG built in loops. */
+.dwg {
+  font-family: var(--font-mono);
+  fill: none; /* inherited, so a fill="url(#…-hatch)" attribute on a shape still wins */
+}
+.dwg :where(line, path, rect, circle, polyline, polygon) {
+  vector-effect: non-scaling-stroke;
+  stroke-width: var(--stroke);
+}
+.dwg .obj {
+  stroke: var(--ink);
+} /* visible edges */
+.dwg .hid {
+  stroke: var(--steel);
+  stroke-dasharray: 6 4;
+} /* hidden edges */
+.dwg .ctr {
+  stroke: var(--steel);
+  stroke-dasharray: 18 4 3 4;
+} /* center lines */
+.dwg .dim {
+  stroke: var(--steel);
+} /* dimension and extension lines */
+.dwg .cut {
+  stroke: var(--ink);
+  stroke-dasharray: 22 5 5 5;
+} /* cutting plane */
+.dwg .blue {
+  stroke: var(--blue);
+}
+.dwg .dwg-hatch {
+  stroke: var(--steel);
+}
+.dwg .dwg-arrow {
+  fill: var(--steel);
+  stroke: none;
+}
+.dwg .dwg-arrow-blue {
+  fill: var(--blue);
+  stroke: none;
+}
+.dwg .dwg-t {
+  font-size: 15px;
+  fill: var(--ink);
+  stroke: none;
+}
+.dwg .dwg-t.small {
+  font-size: 13px;
+  fill: var(--steel);
+}
+.dwg .dwg-t.label {
+  font-family: var(--font-sans);
+  font-stretch: var(--width-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.dwg .dwg-t.blue {
+  fill: var(--blue);
+  font-weight: 500;
+}
+.dwg .fill-paper {
+  fill: var(--paper);
+  stroke: none;
+}
+.dwg .fill-blue {
+  fill: var(--blue);
+  stroke: none;
+}
+
+/* Hero only (animate prop on HousingDrawing): the one orchestrated moment on the site.
+   Dimension groups appear in the order a drafter would add them. */
+@media (prefers-reduced-motion: no-preference) {
+  .dwg-animate .dwg-reveal {
+    animation: dwg-in 500ms var(--ease-out) both;
+  }
+  .dwg-animate .r1 {
+    animation-delay: 150ms;
+  }
+  .dwg-animate .r2 {
+    animation-delay: 400ms;
+  }
+  .dwg-animate .r3 {
+    animation-delay: 700ms;
+  }
+  .dwg-animate .r4 {
+    animation-delay: 950ms;
+  }
+}
+@keyframes dwg-in {
+  from {
+    opacity: 0;
+  }
+}

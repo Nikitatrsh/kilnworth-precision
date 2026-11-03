@@ -1,0 +1,136 @@
+---
+// One labeled form control with an optional hint and an error slot right under it.
+// The error <p> is filled by rfq.ts; aria-describedby links hint and error to the control.
+import type { HTMLAttributes } from 'astro/types';
+
+type Kind = 'text' | 'email' | 'tel' | 'number' | 'date' | 'textarea' | 'select' | 'file';
+
+type Props = {
+  name: string;
+  label: string;
+  kind?: Kind;
+  hint?: string;
+  required?: boolean;
+  options?: readonly { value: string; label: string }[];
+  /** Text after the label of a non-required field; for conditional rules like "(required if no file)". */
+  optionalLabel?: string;
+} & Omit<HTMLAttributes<'input'>, 'name' | 'type'>;
+
+const {
+  name,
+  label,
+  kind = 'text',
+  hint,
+  required = false,
+  options = [],
+  optionalLabel = '(optional)',
+  ...attrs
+} = Astro.props;
+const id = `f-${name}`;
+const describedBy = [hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+const common = {
+  id,
+  name,
+  required,
+  'aria-describedby': describedBy,
+  'data-label': label,
+  'data-kind': kind,
+};
+---
+
+<div class="field">
+  <label for={id}>
+    {label}
+    {!required && <span class="optional">{optionalLabel}</span>}
+  </label>
+  {hint && (
+    <p class="hint" id={`${id}-hint`}>
+      {hint}
+    </p>
+  )}
+  {kind === 'textarea' ? (
+    <textarea {...common} {...(attrs as HTMLAttributes<'textarea'>)} rows="4" />
+  ) : kind === 'select' ? (
+    <select {...common} {...(attrs as HTMLAttributes<'select'>)}>
+      {options.map((o) => (
+        <option value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  ) : (
+    <input type={kind} {...common} {...attrs} />
+  )}
+  <p class="error" id={`${id}-error`} hidden></p>
+</div>
+
+<style>
+  .field {
+    display: grid;
+    gap: var(--space-1);
+  }
+  label {
+    font-weight: 600;
+  }
+  .optional,
+  .hint {
+    color: var(--steel);
+    font-weight: 400;
+  }
+  .hint {
+    font-size: var(--step--1);
+  }
+  input,
+  select,
+  textarea {
+    inline-size: 100%;
+    min-block-size: var(--tap);
+    padding: var(--space-2) var(--space-3);
+    background: var(--white);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  textarea {
+    resize: vertical;
+  }
+  input[type='file'] {
+    padding: var(--space-3);
+    border-style: dashed;
+    cursor: pointer;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+    border-color: var(--blue);
+  }
+  input[aria-invalid='true'],
+  select[aria-invalid='true'],
+  textarea[aria-invalid='true'] {
+    border-color: var(--error);
+    box-shadow: inset 0 0 0 1px var(--error); /* 2px look without shifting the layout */
+  }
+  input::file-selector-button {
+    min-block-size: 36px;
+    margin-inline-end: var(--space-3);
+    padding-inline: var(--space-4);
+    background: var(--white);
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .error {
+    color: var(--error);
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+  .error::before {
+    content: '';
+    display: inline-block;
+    inline-size: 0.6em;
+    block-size: 0.6em;
+    margin-inline-end: 0.4em;
+    background: currentColor;
+    transform: rotate(45deg); /* small diamond, so the error is not signaled by color alone */
+  }
+</style>

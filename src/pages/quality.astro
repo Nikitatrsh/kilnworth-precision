@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import Quality from '../components/home/Quality.astro';
+
+const equipment = [
+  [
+    'Bridge CMMs ×2',
+    'Measuring volume up to 27.5 × 39.4 × 23.6 in; probe changers; reports in PDF and CSV',
+  ],
+  ['Optical comparator', '14 in screen for profiles, radii and thread forms'],
+  ['Laser micrometer', 'At the Swiss lathes, 100% diameter checks on medical work'],
+  ['Surface roughness tester', 'Ra, Rz on turned, milled and EDM surfaces'],
+  [
+    'Height gauges, bore gauges, pin sets, thread gauges',
+    'Calibrated on a recall schedule, traceable to NIST',
+  ],
+];
+
+const nonconformance = [
+  'Stop: the lot is tagged and moved to a locked hold area.',
+  'Tell: you hear from quality within one working day, with measurements.',
+  'Fix: root cause and corrective action written up; you get the report.',
+  'Decide: you choose rework, use-as-is with your sign-off, or replacement at our cost.',
+];
+---
+
+<Base
+  title="Quality"
+  description="CMM inspection, AS9102 first articles, material traceability and how we handle a nonconforming part."
+>
+  <PageHeader
+    title="How we check parts"
+    intro="Measurements happen at the machine, in a 68 °F room and on paper you can audit. Here is what that means for your lot."
+  />
+
+  <Section id="system" title="The system" wide>
+    <Quality />
+  </Section>
+
+  <Section
+    id="equipment"
+    title="Inspection equipment"
+    intro="Generic descriptions; brands are left out on purpose."
+  >
+    <table class="equip">
+      <tbody>
+        {equipment.map(([name, text]) => (
+          <tr>
+            <th scope="row">{name}</th>
+            <td>{text}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Section>
+
+  <Section
+    id="ncr"
+    title="When a part is wrong"
+    intro="It happens rarely, and the process is the same every time."
+  >
+    <ol class="steps">
+      {nonconformance.map((n) => (
+        <li>{n}</li>
+      ))}
+    </ol>
+  </Section>
+</Base>
+
+<style>
+  .equip {
+    border-block-start: 2px solid var(--ink);
+  }
+  .equip th,
+  .equip td {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    text-align: start;
+    vertical-align: top;
+    border-block-end: 1px solid var(--line);
+  }
+  .equip th {
+    font-weight: 600;
+    inline-size: 40%;
+  }
+  .equip td {
+    color: var(--steel);
+  }
+  .steps {
+    display: grid;
+    gap: var(--space-3);
+    padding-inline-start: 1.4em;
+    border-block-start: 2px solid var(--ink);
+    padding-block-start: var(--space-4);
+  }
+  .steps li::marker {
+    font-family: var(--font-mono);
+    color: var(--blue);
+  }
+</style>

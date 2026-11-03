@@ -1,0 +1,174 @@
+---
+// Materials table with a family filter. Without JS the filter is hidden and every row shows.
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+
+const materials = await getCollection('materials');
+const processes = (await getCollection('processes'))
+  .filter((p) => p.id !== 'inspection-finishing')
+  .sort((a, b) => a.data.order - b.data.order);
+const families = [...new Set(materials.map((m) => m.data.family))];
+const processesFor = (id: string) =>
+  processes.filter((p) => p.data.materials.includes(id)).map((p) => p.data.title);
+---
+
+<Base
+  title="Materials"
+  description="Aluminum, stainless, titanium, brass, tool steel, Inconel and engineering plastics we machine, with notes on each."
+>
+  <PageHeader
+    title="Materials we machine"
+    intro="Stock comes from mills and distributors that ship certs with every heat lot. Do not see yours? Ask; we cut odd alloys every month."
+  />
+
+  <div class="container">
+    <fieldset class="families" data-families>
+      <legend>Show</legend>
+      <label>
+        <input type="radio" name="family" value="" checked /> All
+      </label>
+      {families.map((f) => (
+        <label>
+          <input type="radio" name="family" value={f} /> {f}
+        </label>
+      ))}
+    </fieldset>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Material</th>
+            <th scope="col">Family</th>
+            <th scope="col">Notes</th>
+            <th scope="col">Processes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {materials.map((m) => (
+            <tr data-family={m.data.family}>
+              <th scope="row">{m.data.name}</th>
+              <td>{m.data.family}</td>
+              <td class="note">{m.data.note}</td>
+              <td class="procs">{processesFor(m.id).join(', ')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const group = document.querySelector<HTMLFieldSetElement>('[data-families]');
+  const rows = document.querySelectorAll<HTMLTableRowElement>('tr[data-family]');
+  group?.addEventListener('change', (e) => {
+    const family = (e.target as HTMLInputElement).value;
+    for (const r of rows) r.hidden = family !== '' && r.dataset.family !== family;
+  });
+</script>
+
+<style>
+  .families {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    border: 0;
+  }
+  :global(.js) .families {
+    display: flex;
+  }
+  legend {
+    inline-size: 100%;
+    font-weight: 600;
+    margin-block-end: var(--space-2);
+  }
+  .families label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--tap);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .families label:has(:checked) {
+    background: var(--blue-wash);
+    border-color: var(--blue);
+  }
+  .families input {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin: 0;
+    accent-color: var(--blue);
+  }
+  .table-wrap {
+    border-block-start: 2px solid var(--ink);
+  }
+  th,
+  td {
+    padding: var(--space-3);
+    text-align: start;
+    vertical-align: top;
+    border-block-end: 1px solid var(--line);
+  }
+  thead th {
+    background: var(--paper-2);
+    font-size: var(--step--1);
+    font-stretch: var(--width-label);
+    font-weight: 600;
+    color: var(--steel);
+  }
+  tbody th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .note {
+    color: var(--steel);
+    max-inline-size: 40ch;
+  }
+  .procs {
+    font-size: var(--step--1);
+  }
+  tr[hidden] {
+    display: none !important;
+  }
+  /* Narrow: each material becomes a block; the family is already in the filter, so it is dropped. */
+  @media (max-width: 51.99rem) {
+    table {
+      min-inline-size: 0;
+    }
+    thead {
+      display: none;
+    }
+    table,
+    tbody,
+    tr,
+    th,
+    td {
+      display: block;
+    }
+    tr {
+      padding-block: var(--space-3);
+      border-block-end: 1px solid var(--line);
+    }
+    th,
+    td {
+      padding: 0;
+      border: 0;
+    }
+    tbody th {
+      white-space: normal;
+    }
+    td:nth-child(2) {
+      display: none;
+    }
+    .note {
+      margin-block: var(--space-1);
+    }
+  }
+</style>

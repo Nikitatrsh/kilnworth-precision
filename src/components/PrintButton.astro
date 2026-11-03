@@ -1,0 +1,34 @@
+---
+// Opens the browser print dialog (print.css lays the page out as a one-pager). JS only.
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<button type="button" class="print-btn" data-print hidden>
+  {label}
+</button>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-print]')) {
+    b.hidden = false;
+    b.addEventListener('click', () => window.print());
+  }
+</script>
+
+<style>
+  .print-btn {
+    justify-self: start;
+    min-block-size: var(--tap);
+    padding-inline: var(--space-4);
+    background: transparent;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .print-btn[hidden] {
+    display: none;
+  }
+</style>

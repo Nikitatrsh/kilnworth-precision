@@ -1,0 +1,54 @@
+---
+// RFQ step 3: who gets the quote. Includes the honeypot field `website` (bots fill it).
+import Field from '../form/Field.astro';
+import Button from '../Button.astro';
+---
+
+<fieldset class="step" data-step="2">
+  <legend>
+    <span class="step-of">Step 3 of 3</span> Where to send the quote
+  </legend>
+  <div class="two">
+    <Field name="name" label="Your name" required autocomplete="name" maxlength="80" />
+    <Field name="company" label="Company" required autocomplete="organization" maxlength="120" />
+  </div>
+  <div class="two">
+    <Field
+      name="email"
+      label="Work email"
+      kind="email"
+      required
+      autocomplete="email"
+      maxlength="120"
+    />
+    <Field
+      name="phone"
+      label="Phone"
+      kind="tel"
+      autocomplete="tel"
+      pattern="[0-9+()\-. ]{7,20}"
+      maxlength="20"
+    />
+  </div>
+  <div class="hp" aria-hidden="true">
+    <label for="f-website">Leave this field empty</label>
+    <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <p class="fine">
+    We use these details only to answer this request. <a href="/privacy">Privacy</a>
+  </p>
+  <div class="nav">
+    <Button type="button" variant="secondary" data-back>
+      Back to requirements
+    </Button>
+    <Button type="submit" disabled data-submit>
+      Send request for quote
+    </Button>
+  </div>
+  <noscript>
+    <p class="fine">
+      This demo needs JavaScript to check the form and show the confirmation. Nothing is sent either
+      way.
+    </p>
+  </noscript>
+</fieldset>

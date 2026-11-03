@@ -1,0 +1,77 @@
+---
+// "Can you make my part?" Filters processes by material, size, tolerance and process.
+// All processes are rendered at build time; explorer.ts hides what does not match and keeps
+// the filters in the URL. Without JS the filters are hidden and the full list stays readable.
+// Parts: ExplorerFilters (form), ExplorerResults (list). Logic: src/lib/filter.ts.
+import { getCollection } from 'astro:content';
+import ExplorerFilters from './ExplorerFilters.astro';
+import ExplorerResults from './ExplorerResults.astro';
+
+const processes = (await getCollection('processes'))
+  .filter((p) => p.id !== 'inspection-finishing') // not a machining process; has its own page
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<div class="explorer" data-explorer>
+  <ExplorerFilters processes={processes.map((p) => ({ id: p.id, title: p.data.title }))} />
+
+  <p class="status" data-status aria-live="polite"></p>
+  <div class="empty" data-empty hidden>
+    <p>
+      <strong>No process matches all of these.</strong> <span data-empty-hint></span>
+    </p>
+    <div class="relax" data-empty-actions></div>
+    <p>
+      Unusual part? <a href="/rfq">Send the drawing anyway</a>; we tell you honestly if it is not
+      for us.
+    </p>
+  </div>
+
+  <ExplorerResults processes={processes} />
+</div>
+
+<script>
+  import './explorer';
+</script>
+
+<style>
+  .explorer {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .status {
+    font-weight: 600;
+  }
+  .empty {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-inline-start: 4px solid var(--blue);
+    background: var(--white);
+  }
+  .empty[hidden] {
+    display: none;
+  }
+  /* one button per filter that would bring results back */
+  .relax {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+  }
+  .relax:empty {
+    display: none;
+  }
+  .relax :global(button) {
+    min-block-size: var(--tap);
+    padding-inline: var(--space-4);
+    background: var(--white);
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .relax :global(button):hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+</style>

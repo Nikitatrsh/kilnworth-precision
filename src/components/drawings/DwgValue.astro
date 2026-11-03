@@ -1,0 +1,41 @@
+---
+// A number on a drawing, in both units; CSS shows the visitor's unit (see Base.astro).
+// Example: <DwgValue x={10} y={20} value="1.2500" before="Ø" after=" ±0.0005" />
+import { formatInch, formatMm } from '../../lib/units';
+
+interface Props {
+  x: number;
+  y: number;
+  value: string;
+  before?: string;
+  /** Second value, e.g. a tolerance written after the size. */
+  tol?: string;
+  after?: string;
+  anchor?: 'start' | 'middle' | 'end';
+  /** Rotate the text around its anchor point (degrees). */
+  rotate?: number;
+  class?: string;
+}
+
+const {
+  x,
+  y,
+  value,
+  before = '',
+  tol,
+  after = '',
+  anchor = 'middle',
+  rotate,
+  class: cls,
+} = Astro.props;
+const transform = rotate ? `rotate(${rotate} ${x} ${y})` : undefined;
+const text = (fmt: typeof formatInch) =>
+  `${before}${fmt(value, { bare: true })}${tol ? ` ${fmt(tol, { tol: true, bare: true })}` : ''}${after}`;
+---
+
+<text class:list={['dwg-t', 'u-in', cls]} x={x} y={y} text-anchor={anchor} transform={transform}>
+  {text(formatInch)}
+</text>
+<text class:list={['dwg-t', 'u-mm', cls]} x={x} y={y} text-anchor={anchor} transform={transform}>
+  {text(formatMm)}
+</text>

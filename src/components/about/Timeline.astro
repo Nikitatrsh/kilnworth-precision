@@ -1,0 +1,63 @@
+---
+// Company history as a scale with graduations. Fictional; years only where something
+// changed for customers.
+const timeline = [
+  {
+    year: 1987,
+    text: 'Opened in a two-bay garage with two manual mills and a lathe, making repair parts for local foundries.',
+  },
+  {
+    year: 1996,
+    text: 'First CNC machining center. Moved to the current building on Kiln Run Road.',
+  },
+  {
+    year: 2004,
+    text: 'Started machining instrument parts for a medical device maker, our first regulated customer.',
+  },
+  { year: 2011, text: 'Added Swiss-type lathes for bone screws and connector pins.' },
+  {
+    year: 2016,
+    text: 'Wire EDM room and the temperature-controlled inspection room with the first CMM.',
+  },
+  { year: 2023, text: 'Four 5-axis machines replaced most of the 3-axis second operations.' },
+];
+---
+
+<ol class="timeline">
+  {timeline.map((t) => (
+    <li>
+      <span class="year num">{t.year}</span>
+      <p>{t.text}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline {
+    padding: 0;
+    list-style: none;
+    border-inline-start: 2px solid var(--ink);
+  }
+  .timeline li {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: var(--gutter);
+    padding: var(--space-3) 0 var(--space-3) var(--space-4);
+    position: relative;
+    max-inline-size: none;
+  }
+  /* tick mark on the line, like a graduation on a scale */
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 1.35em;
+    inline-size: 0.75rem;
+    border-block-start: 2px solid var(--ink);
+  }
+  .year {
+    color: var(--blue);
+    font-weight: 500;
+    padding-block-start: 0.1em;
+  }
+</style>

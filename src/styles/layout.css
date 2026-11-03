@@ -1,0 +1,84 @@
+@layer layout {
+  .container {
+    inline-size: 100%;
+    max-inline-size: calc(var(--container) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Space above each section only; the footer's own top margin closes the page. */
+  .section {
+    padding-block: var(--space-section) 0;
+  }
+
+  /* Heading column + content column, used by most home and inner sections. */
+  .split {
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+  }
+  @media (min-width: 60rem) {
+    .split {
+      grid-template-columns: 4fr 8fr;
+    }
+  }
+
+  .section-head {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+  .section-head p {
+    color: var(--steel);
+  }
+  /* "see all" links under a section heading stand alone, so they get a full tap target */
+  .section-head a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+  }
+
+  /* Drafting grid behind drawings: 20px squares, thin lines (gradients used as rulings, not decoration). */
+  .grid-paper {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: -1px -1px;
+  }
+
+  /* Prose for Markdown pages. */
+  .prose > * + * {
+    margin-block-start: var(--space-4);
+  }
+  .prose h2 {
+    font-size: var(--step-2);
+    margin-block-start: var(--space-7);
+  }
+  .prose h3 {
+    margin-block-start: var(--space-6);
+  }
+  .prose ul,
+  .prose ol {
+    padding-inline-start: 1.2em;
+  }
+  .prose li + li {
+    margin-block-start: var(--space-2);
+  }
+  .prose table {
+    max-inline-size: var(--measure);
+    font-size: var(--step--1);
+    border-block-start: 2px solid var(--ink);
+  }
+  .prose th,
+  .prose td {
+    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    text-align: start;
+    vertical-align: top;
+    border-block-end: 1px solid var(--line);
+  }
+  .prose th {
+    font-stretch: var(--width-label);
+    color: var(--steel);
+  }
+}

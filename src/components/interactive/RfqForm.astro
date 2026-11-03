@@ -1,0 +1,35 @@
+---
+// Quote request in three steps (Part, Details, Contact). Without JS all steps show as one
+// long form and submit stays disabled; rfq.ts adds stepping, validation and the result view.
+// DEMO: nothing is sent anywhere. See README "Connecting a real form backend".
+// Steps: RfqStepPart / RfqStepDetails / RfqStepContact. Styles: rfq.css.
+import './rfq.css';
+import RfqStepPart from './RfqStepPart.astro';
+import RfqStepDetails from './RfqStepDetails.astro';
+import RfqStepContact from './RfqStepContact.astro';
+import RfqSuccess from './RfqSuccess.astro';
+
+const steps = ['Part', 'Details', 'Contact'];
+---
+
+<div class="rfq-wrap">
+  <ol class="stepper" data-stepper hidden>
+    {steps.map((s, i) => (
+      <li data-stepper-item={i}>
+        <span class="num">{i + 1}</span> {s}
+      </li>
+    ))}
+  </ol>
+
+  <form class="rfq" data-rfq action="#" method="post">
+    <RfqStepPart />
+    <RfqStepDetails />
+    <RfqStepContact />
+  </form>
+
+  <RfqSuccess />
+</div>
+
+<script>
+  import './rfq';
+</script>

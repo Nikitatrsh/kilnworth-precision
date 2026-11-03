@@ -1,0 +1,92 @@
+---
+// Home hero: a drawing sheet. Part drawing on the left, title block on the right
+// holding the headline and the quote button, where a print carries its part number.
+// Styles: hero.css.
+import './hero.css';
+import Button from '../Button.astro';
+import Dim from '../Dim.astro';
+import HousingDrawing from '../drawings/HousingDrawing.astro';
+import { site } from '../../config/site';
+
+const zonesX = [1, 2, 3, 4, 5, 6];
+const zonesY = ['A', 'B', 'C', 'D'];
+const specs = [
+  ['Quote back in', site.quoteTurnaround],
+  ['Prototypes ship in', '5–10 working days'],
+  ['Lot sizes', '1 to 10,000 pieces'],
+  ['Every new part', 'First article inspection report'],
+];
+---
+
+<section class="hero container" aria-labelledby="hero-title">
+  <div class="sheet">
+    <ol class="zones zones-x" aria-hidden="true">
+      {zonesX.map((z) => (
+        <li>{z}</li>
+      ))}
+    </ol>
+    <ol class="zones zones-y" aria-hidden="true">
+      {zonesY.map((z) => (
+        <li>{z}</li>
+      ))}
+    </ol>
+
+    <div class="sheet-body">
+      <div class="drawing grid-paper">
+        <HousingDrawing id="hero-wide" animate class="drawing-wide" />
+        <HousingDrawing id="hero-narrow" crop="front" class="drawing-narrow" />
+      </div>
+
+      <div class="tb-main">
+        <h1 id="hero-title">
+          <span>Built to print.</span>{' '}
+          <span>
+            Held to <Dim value="0.0005" tol />.
+          </span>
+        </h1>
+        <p class="lede">
+          Kilnworth Precision is a {site.employees}-person contract machine shop in Berks County,
+          Pennsylvania. We mill, turn and wire-cut metal and plastic parts for medical, aerospace
+          and automation companies, from one prototype to 10,000 pieces.
+        </p>
+        <div class="actions">
+          <Button href="/rfq">Request a quote</Button>
+          <Button href="/capabilities" variant="secondary">
+            See what we machine
+          </Button>
+        </div>
+      </div>
+
+      <dl class="tb-specs">
+        {specs.map(([term, value]) => (
+          <div>
+            <dt>{term}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <dl class="tb-meta">
+        <div>
+          <dt>Part</dt>
+          <dd>Sensor housing</dd>
+        </div>
+        <div>
+          <dt>Material</dt>
+          <dd>Al 7075-T651</dd>
+        </div>
+        <div>
+          <dt>Units</dt>
+          <dd>
+            <span class="u-in">inch</span>
+            <span class="u-mm">mm</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Rev</dt>
+          <dd>C</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>

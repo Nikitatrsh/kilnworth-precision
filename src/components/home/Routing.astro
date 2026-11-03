@@ -1,0 +1,90 @@
+---
+// How an order moves, written as a shop router: operations numbered 10, 20, 30, 40,
+// the way a traveler sheet numbers them (gaps leave room to insert an operation).
+import { site } from '../../config/site';
+
+const ops = [
+  {
+    op: 10,
+    title: 'Send the drawing',
+    text: 'STEP or IGES for the model, PDF for the print with tolerances. Quantity and target date help us quote the right process.',
+    time: 'Day 0',
+  },
+  {
+    op: 20,
+    title: 'DFM review and quote',
+    text: 'An engineer reads the print, flags features that drive cost and suggests changes. You get a price per quantity break.',
+    time: `Within ${site.quoteTurnaround}`,
+  },
+  {
+    op: 30,
+    title: 'First article',
+    text: 'We machine the first parts and inspect every dimension against the print. You get the ballooned report before the lot runs.',
+    time: '5–10 working days',
+  },
+  {
+    op: 40,
+    title: 'Production and shipping',
+    text: 'The lot runs with in-process checks. Certs, inspection report and packing list ship with the parts.',
+    time: 'As quoted',
+  },
+];
+---
+
+<ol class="routing">
+  {ops.map((o) => (
+    <li>
+      <p class="op num">Op {o.op}</p>
+      <h3>{o.title}</h3>
+      <p class="text">{o.text}</p>
+      <p class="time">{o.time}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .routing {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-block-start: 2px solid var(--ink);
+  }
+  @media (min-width: 48rem) {
+    .routing {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 72rem) {
+    .routing {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  li {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-4) var(--space-5) 0;
+    border-block-end: 1px solid var(--line);
+    max-inline-size: none;
+  }
+  @media (min-width: 48rem) {
+    li {
+      padding-inline-start: var(--space-4);
+      border-inline-start: 1px solid var(--line);
+    }
+  }
+  .op {
+    color: var(--blue);
+    font-weight: 500;
+  }
+  h3 {
+    font-size: var(--step-1);
+  }
+  .text {
+    color: var(--steel);
+  }
+  .time {
+    margin-block-start: var(--space-2);
+    font-weight: 600;
+  }
+</style>

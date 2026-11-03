@@ -1,0 +1,108 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import RfqForm from '../components/interactive/RfqForm.astro';
+import { site } from '../config/site';
+---
+
+<Base
+  title="Request a quote"
+  description={`Send a drawing and get a price with DFM notes in ${site.quoteTurnaround}. STEP, IGES, DWG, DXF or PDF.`}
+>
+  <PageHeader
+    title="Request a quote"
+    intro={`Three short steps. An engineer, not a sales rep, reads your drawing and replies within ${site.quoteTurnaround}.`}
+  >
+    <p class="demo-flag">
+      <strong>Demo:</strong> this form checks what you enter and shows the confirmation, but nothing
+      is sent or stored.
+    </p>
+  </PageHeader>
+
+  <div class="container rfq-layout">
+    <RfqForm />
+
+    <aside class="aside" aria-label="Before you send">
+      <h2>Before you send</h2>
+      <dl>
+        <div>
+          <dt>Export-controlled drawings</dt>
+          <dd>
+            Do not upload ITAR, EAR or CUI data through a web form. Call us and we will set up a
+            controlled transfer.
+          </dd>
+        </div>
+        <div>
+          <dt>No drawing yet?</dt>
+          <dd>
+            Skip the file and describe the part in step 1: size, material and the tolerances that
+            matter get you a budget price. Send the drawing when you have it.
+          </dd>
+        </div>
+        <div>
+          <dt>NDA first?</dt>
+          <dd>Ask for our mutual NDA; we sign before you send files.</dd>
+        </div>
+        <div>
+          <dt>Rather talk?</dt>
+          <dd>
+            <a href={site.phone.href}>{site.phone.display}</a>, {site.hours}.
+          </dd>
+        </div>
+      </dl>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .demo-flag {
+    justify-self: start;
+    padding: var(--space-2) var(--space-3);
+    background: var(--blue-wash);
+    font-size: var(--step--1);
+  }
+  .rfq-layout {
+    display: grid;
+    gap: var(--space-7) var(--gutter);
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .rfq-layout {
+      grid-template-columns: 8fr 4fr;
+    }
+    .aside {
+      position: sticky;
+      inset-block-start: var(--space-5);
+    }
+  }
+  .aside {
+    padding: var(--space-5);
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+  h2 {
+    font-size: var(--step-1);
+    font-stretch: 100%;
+    margin-block-end: var(--space-3);
+  }
+  dl {
+    margin: 0;
+  }
+  dl div {
+    padding-block: var(--space-3);
+    border-block-start: 1px solid var(--line);
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 0;
+    color: var(--steel);
+    font-size: var(--step--1);
+  }
+  dd a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+  }
+</style>

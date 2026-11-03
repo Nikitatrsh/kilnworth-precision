@@ -1,0 +1,77 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Button from '../../components/Button.astro';
+import { site } from '../../config/site';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('resources');
+  return articles.map((a) => ({ params: { slug: a.id }, props: { article: a } }));
+}
+
+const { article } = Astro.props;
+const { data } = article;
+const { Content } = await render(article);
+const iso = data.published.toISOString().slice(0, 10);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: data.title,
+  description: data.summary,
+  datePublished: iso,
+  author: { '@type': 'Organization', name: site.name },
+  publisher: { '@type': 'Organization', name: site.name },
+  mainEntityOfPage: new URL(`/resources/${article.id}`, Astro.site).href,
+};
+---
+
+<Base title={data.title} description={data.summary} jsonLd={jsonLd}>
+  <PageHeader
+    title={data.title}
+    intro={data.summary}
+    parent={{ href: '/resources', label: 'All notes' }}
+  >
+    <p class="meta">
+      Published
+      <time datetime={iso}>
+        {data.published.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          timeZone: 'UTC',
+        })}
+      </time>
+      by our {data.author.toLowerCase()}
+    </p>
+  </PageHeader>
+  <div class="container">
+    <article class="prose">
+      <Content />
+    </article>
+    <aside class="cta">
+      <p>Want this kind of review on your own drawing?</p>
+      <Button href="/rfq">Request a quote</Button>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .meta {
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+  .cta {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+    margin-block-start: var(--space-7);
+    padding-block-start: var(--space-5);
+    border-block-start: 2px solid var(--ink);
+    max-inline-size: var(--measure);
+  }
+  .cta p {
+    font-weight: 600;
+  }
+</style>

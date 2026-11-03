@@ -1,0 +1,140 @@
+---
+// Process list for CapabilityExplorer. data-* attributes feed explorer.ts.
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Dim from '../Dim.astro';
+
+interface Props {
+  processes: CollectionEntry<'processes'>[];
+}
+const { processes } = Astro.props;
+const materials = await getCollection('materials');
+const materialName = new Map(materials.map((m) => [m.id, m.data.name]));
+---
+
+<ul class="results" data-results>
+  {processes.map((p) => (
+    <li
+      data-process={p.id}
+      data-max={p.data.maxSize}
+      data-tol={p.data.toleranceBest}
+      data-materials={p.data.materials.join(' ')}
+    >
+      <h2>
+        <a href={`/capabilities/${p.id}`}>{p.data.title}</a>
+      </h2>
+      <p class="summary">{p.data.summary}</p>
+      <dl class="nums">
+        <div>
+          <dt>Largest part</dt>
+          <dd>
+            <Dim value={p.data.maxSize} />
+          </dd>
+        </div>
+        <div>
+          <dt>Tightest</dt>
+          <dd>
+            <Dim value={p.data.toleranceBest} tol />
+          </dd>
+        </div>
+      </dl>
+      <ul class="mats" aria-label={`Materials for ${p.data.title}`}>
+        {p.data.materials.map((id) => (
+          <li data-material={id}>{materialName.get(id) ?? id}</li>
+        ))}
+      </ul>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .results {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-block-start: 2px solid var(--ink);
+  }
+  .results > li {
+    display: grid;
+    gap: var(--space-2) var(--gutter);
+    padding-block: var(--space-5);
+    border-block-end: 1px solid var(--line);
+    max-inline-size: none;
+  }
+  .results > li[hidden] {
+    display: none;
+  }
+  @media (min-width: 52rem) {
+    .results > li {
+      grid-template-columns: 4fr 3fr 5fr;
+      grid-template-areas: 'title nums mats' 'summary nums mats';
+      align-items: start;
+    }
+    h2 {
+      grid-area: title;
+    }
+    .summary {
+      grid-area: summary;
+    }
+    .nums {
+      grid-area: nums;
+    }
+    .mats {
+      grid-area: mats;
+    }
+  }
+  h2 {
+    font-size: var(--step-2);
+  }
+  h2 a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tap);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  h2 a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+  }
+  .summary {
+    color: var(--steel);
+  }
+  .nums {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .nums div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border-block-end: 1px solid var(--line);
+    padding-block-end: var(--space-1);
+  }
+  .nums dt {
+    color: var(--steel);
+    font-size: var(--step--1);
+  }
+  .nums dd {
+    margin: 0;
+  }
+  .mats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+    align-content: start;
+  }
+  .mats li {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: var(--step--1);
+  }
+  .mats li[data-hit] {
+    background: var(--blue-wash);
+    border-color: var(--blue);
+  }
+</style>

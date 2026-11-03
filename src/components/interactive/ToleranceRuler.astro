@@ -1,0 +1,83 @@
+---
+// "How tight is that?" A tolerance band drawn to the same linear scale as paper, hair and a
+// blood cell. Works without JS (shows ±0.0005 in); the slider moves the band (ruler.ts).
+// SVG has no viewBox: x/width are percentages of the real width, so labels stay 13px on phones.
+import './ruler.css';
+import {
+  DEFAULT_STEP,
+  REFERENCES,
+  TOLERANCE_STEPS,
+  bandPercent,
+  hairComparison,
+  sizePercent,
+} from '../../lib/tolerance';
+import { formatInch, formatMm } from '../../lib/units';
+
+const start = TOLERANCE_STEPS[DEFAULT_STEP];
+const band = bandPercent(Number(start.value));
+const lo = `${50 - band / 2}%`;
+const hi = `${50 + band / 2}%`;
+const rowY = (i: number) => 52 + i * 44; // label baseline per reference row
+---
+
+<div class="ruler" data-ruler>
+  <div class="readout" aria-live="polite">
+    <p class="value">
+      <span class="u-in" data-out="in">
+        {formatInch(start.value, { tol: true })}
+      </span>
+      <span class="u-mm" data-out="mm">
+        {formatMm(start.value, { tol: true })}
+      </span>
+    </p>
+    <p class="compare">
+      The whole band is <span data-out="hair">{hairComparison(Number(start.value))}</span>.
+    </p>
+    <p class="note" data-out="note">
+      {start.note}
+    </p>
+  </div>
+
+  <svg class="stage grid-paper" width="100%" height="180" aria-hidden="true">
+    <rect class="band" data-band x={lo} y="18" width={`${band}%`} height="150"></rect>
+    <line class="edge" data-edge="lo" x1={lo} x2={lo} y1="18" y2="168"></line>
+    <line class="edge" data-edge="hi" x1={hi} x2={hi} y1="18" y2="168"></line>
+    <line class="nominal" x1="50%" x2="50%" y1="6" y2="176"></line>
+    {REFERENCES.map((r, i) => {
+      const w = sizePercent(Number(r.value));
+      return (
+        <>
+          <text
+            class="ref-label u-in"
+            x="8"
+            y={rowY(i)}
+          >{`${r.label}, ${formatInch(r.value)}`}</text>
+          <text class="ref-label u-mm" x="8" y={rowY(i)}>{`${r.label}, ${formatMm(r.value)}`}</text>
+          <rect class="ref" x={`${50 - w / 2}%`} y={rowY(i) + 8} width={`${w}%`} height="8" />
+        </>
+      );
+    })}
+  </svg>
+
+  <div class="control">
+    <label for="tol-range">Tolerance</label>
+    <input
+      id="tol-range"
+      type="range"
+      min="0"
+      max={TOLERANCE_STEPS.length - 1}
+      step="1"
+      value={DEFAULT_STEP}
+      aria-valuetext={`±${start.value} inch`}
+    />
+    <ol class="ticks" aria-hidden="true">
+      {TOLERANCE_STEPS.map((s) => (
+        <li class="num">±{s.value}</li>
+      ))}
+    </ol>
+  </div>
+</div>
+
+<script>
+  import './ruler';
+</script>

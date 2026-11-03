@@ -1,0 +1,97 @@
+---
+// Shown after a valid submit. Filled with textContent by rfq.ts (never innerHTML).
+import { site } from '../../config/site';
+---
+
+<section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
+  <h2 id="success-title">Request ready for review</h2>
+  <p class="demo-note">
+    <strong>Demo: nothing was sent.</strong> On a live site this is the confirmation a buyer sees;
+    your entries never left this browser tab.
+  </p>
+  <dl class="summary" data-summary></dl>
+  <h3>What happens next</h3>
+  <ol class="next">
+    <li>
+      <span class="num">Op 20</span> An engineer reads your drawing and replies within{' '}
+      {site.quoteTurnaround} with a price per quantity and any DFM notes.
+    </li>
+    <li>
+      <span class="num">Op 30</span> When you send a PO, we machine and fully inspect the first
+      article before the lot runs.
+    </li>
+    <li>
+      <span class="num">Op 40</span> Parts ship with certs and the inspection report.
+    </li>
+  </ol>
+  <p>
+    Questions now? Call <a href={site.phone.href}>{site.phone.display}</a>.
+  </p>
+  <button type="button" class="again" data-again>
+    Start another request
+  </button>
+</section>
+
+<style>
+  .success {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: 1px solid var(--ink);
+    border-block-start: 4px solid var(--blue);
+    background: var(--white);
+  }
+  .success[hidden] {
+    display: none;
+  }
+  .success:focus {
+    outline: none;
+  }
+  h2 {
+    font-size: var(--step-3);
+  }
+  .demo-note {
+    padding: var(--space-3) var(--space-4);
+    background: var(--blue-wash);
+  }
+  .summary {
+    display: grid;
+    margin: 0;
+    border-block-start: 1px solid var(--line);
+  }
+  .summary :global(div) {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) 2fr;
+    gap: var(--gutter);
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--line);
+  }
+  .summary :global(dt) {
+    color: var(--steel);
+  }
+  .summary :global(dd) {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .next {
+    display: grid;
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+  .next .num {
+    display: inline-block;
+    min-inline-size: 4.5ch;
+    color: var(--blue);
+  }
+  .again {
+    justify-self: start;
+    min-block-size: var(--tap);
+    padding-inline: var(--space-4);
+    background: transparent;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>

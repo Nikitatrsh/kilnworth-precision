@@ -1,0 +1,54 @@
+---
+// One sample review, labeled as such. No faces: a monogram instead of a photo.
+import Monogram from '../Monogram.astro';
+---
+
+<figure class="review">
+  <blockquote>
+    <!-- Text must touch the tags: the quote marks are added by CSS -->
+    <!-- prettier-ignore -->
+    <p>We sent a drawing on a Tuesday with a note that the bore position was the whole job. The quote came back Thursday with a fixture sketch and a question about our datum scheme that saved us a revision.</p>
+  </blockquote>
+  <figcaption>
+    <Monogram initials="RM" size="sm" />
+    <span class="by">
+      <strong>R. M., manufacturing engineer</strong>
+      <span class="who">Halden Instruments (fictional). Sample review (demo).</span>
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .review {
+    display: grid;
+    gap: var(--space-5);
+    max-inline-size: 52rem;
+  }
+  blockquote p {
+    font-size: var(--step-2);
+    font-stretch: var(--width-display);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    max-inline-size: 38ch;
+    text-indent: -0.4em;
+  }
+  blockquote p::before {
+    content: '“';
+  }
+  blockquote p::after {
+    content: '”';
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .by {
+    display: grid;
+  }
+  .who {
+    color: var(--steel);
+    font-size: var(--step--1);
+  }
+</style>

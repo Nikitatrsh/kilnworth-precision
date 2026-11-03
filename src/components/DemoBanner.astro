@@ -1,0 +1,70 @@
+---
+import { site } from '../config/site';
+// Honest label on every page: this site is a portfolio piece, not a real business.
+// Dismissal is remembered in localStorage (read before paint by /boot.js).
+---
+
+<div class="demo" role="note" aria-label="Portfolio demo notice">
+  <p class="container demo-inner">
+    <span>
+      <strong>Portfolio demo:</strong> Kilnworth Precision is a fictional company. Names, numbers,
+      reviews and certifications on this site are invented. Demo by {site.demoBy}.
+    </span>
+    <button class="demo-close" type="button" hidden>
+      Hide<span class="visually-hidden"> demo notice</span>
+    </button>
+  </p>
+</div>
+
+<script>
+  const banner = document.querySelector<HTMLElement>('.demo');
+  const close = banner?.querySelector<HTMLButtonElement>('.demo-close');
+  if (banner && close) {
+    close.hidden = false;
+    close.addEventListener('click', () => {
+      document.documentElement.dataset.demoDismissed = '';
+      try {
+        localStorage.setItem('kp-demo-dismissed', '1');
+      } catch {
+        /* private mode: hide for this page view only */
+      }
+      document.querySelector<HTMLElement>('#main')?.focus();
+    });
+  }
+</script>
+
+<style>
+  .demo {
+    background: var(--ink);
+    color: var(--on-graphite);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+  :global([data-demo-dismissed]) .demo {
+    display: none;
+  }
+  .demo-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-inline-size: none;
+    padding-block: var(--space-2);
+  }
+  .demo-close {
+    flex: none;
+    min-block-size: var(--tap);
+    min-inline-size: var(--tap);
+    padding-inline: var(--space-3);
+    background: transparent;
+    border: 1px solid var(--on-graphite-2);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .demo-close:hover {
+    border-color: var(--on-graphite);
+  }
+  .demo-close:focus-visible {
+    outline-color: var(--on-graphite);
+  }
+</style>

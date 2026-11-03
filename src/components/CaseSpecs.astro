@@ -1,0 +1,57 @@
+---
+// The five numbers every case study answers: material, tolerance, quantity, lead time, industry.
+import type { CollectionEntry } from 'astro:content';
+import Dim from './Dim.astro';
+
+interface Props {
+  data: CollectionEntry<'cases'>['data'];
+}
+const { data } = Astro.props;
+---
+
+<dl class="case-specs">
+  <div>
+    <dt>Material</dt>
+    <dd>{data.material}</dd>
+  </div>
+  <div>
+    <dt>Tightest tolerance</dt>
+    <dd>
+      <Dim value={data.tolerance} tol />
+    </dd>
+  </div>
+  <div>
+    <dt>Quantity</dt>
+    <dd class="num">{data.quantity.toLocaleString('en-US')} pcs</dd>
+  </div>
+  <div>
+    <dt>PO to shipment</dt>
+    <dd class="num">{data.leadDays} working days</dd>
+  </div>
+</dl>
+
+<style>
+  .case-specs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    border-block-start: 1px solid var(--line);
+  }
+  .case-specs div:first-child {
+    grid-column: 1 / -1; /* material names are long; give them the full row */
+  }
+  .case-specs div {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    border-block-end: 1px solid var(--line);
+  }
+  dt {
+    font-size: var(--step--1);
+    font-stretch: var(--width-label);
+    font-weight: 600;
+    color: var(--steel);
+  }
+  dd {
+    margin: 0;
+    font-weight: 500;
+  }
+</style>

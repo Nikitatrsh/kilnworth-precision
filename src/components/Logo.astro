@@ -1,0 +1,63 @@
+---
+// Mark: a GD&T datum feature symbol (boxed letter on a datum triangle), the reference
+// every measurement on a drawing starts from.
+import { site } from '../config/site';
+---
+
+<a class="logo" href="/" aria-label={`${site.name}, home`}>
+  <svg class="logo-mark" viewBox="0 0 28 34" width="28" height="34" aria-hidden="true">
+    <rect
+      x="1"
+      y="1"
+      width="26"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    ></rect>
+    <path d="M14 23v4" stroke="currentColor" stroke-width="2"></path>
+    <path d="M8 33h12l-6-6z" fill="currentColor"></path>
+    <path
+      d="M10 6v12M10 12.5 17.5 6M12.6 10.6 18 18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    ></path>
+  </svg>
+  <span class="logo-word">
+    Kilnworth<span class="logo-sub">Precision</span>
+  </span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--ink);
+    text-decoration: none;
+    min-block-size: var(--tap);
+  }
+  .logo:hover {
+    color: var(--blue);
+  }
+  .logo-mark {
+    flex: none;
+  }
+  .logo-word {
+    display: grid;
+    font-stretch: var(--width-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .logo-sub {
+    font-stretch: var(--width-label);
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--steel);
+    margin-block-start: 0.2rem;
+  }
+</style>

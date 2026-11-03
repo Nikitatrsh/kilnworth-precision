@@ -1,0 +1,16 @@
+---
+// Picks the drawing named in a case study's frontmatter (`drawing:`).
+import HousingDrawing from './HousingDrawing.astro';
+import ShaftDrawing from './ShaftDrawing.astro';
+import ManifoldDrawing from './ManifoldDrawing.astro';
+
+interface Props {
+  drawing: 'housing' | 'shaft' | 'manifold';
+  id: string;
+}
+const { drawing, id } = Astro.props;
+---
+
+{drawing === 'housing' && <HousingDrawing id={id} crop="plan" />}
+{drawing === 'shaft' && <ShaftDrawing id={id} />}
+{drawing === 'manifold' && <ManifoldDrawing id={id} />}

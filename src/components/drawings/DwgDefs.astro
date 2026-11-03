@@ -1,0 +1,44 @@
+---
+// Shared SVG defs: arrowheads and section hatch. `id` keeps ids unique when a drawing
+// appears twice on one page (wide and narrow crops in the hero).
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<defs>
+  <marker
+    id={`${id}-arrow`}
+    viewBox="0 0 12 6"
+    refX="12"
+    refY="3"
+    markerWidth="12"
+    markerHeight="6"
+    markerUnits="userSpaceOnUse"
+    orient="auto-start-reverse"
+  >
+    <path d="M0 0 12 3 0 6z" class="dwg-arrow"></path>
+  </marker>
+  <marker
+    id={`${id}-arrow-blue`}
+    viewBox="0 0 12 6"
+    refX="12"
+    refY="3"
+    markerWidth="12"
+    markerHeight="6"
+    markerUnits="userSpaceOnUse"
+    orient="auto-start-reverse"
+  >
+    <path d="M0 0 12 3 0 6z" class="dwg-arrow-blue"></path>
+  </marker>
+  <pattern
+    id={`${id}-hatch`}
+    width="8"
+    height="8"
+    patternUnits="userSpaceOnUse"
+    patternTransform="rotate(45)"
+  >
+    <line x1="0" y1="0" x2="0" y2="8" class="dwg-hatch"></line>
+  </pattern>
+</defs>

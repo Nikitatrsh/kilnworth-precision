@@ -1,0 +1,117 @@
+---
+// How parts are checked. Certifications are demo claims and say so.
+const checks = [
+  [
+    'Inspection room',
+    'Two bridge CMMs at 68 °F ±1 °F, so a 6 in aluminum part measures the same at 7 am and 3 pm.',
+  ],
+  [
+    'First article',
+    'AS9102-format report with a ballooned drawing for every new part number or revision.',
+  ],
+  [
+    'In process',
+    'Operators check critical features at set intervals; results go on the traveler, not in someone’s head.',
+  ],
+  [
+    'Traceability',
+    'Heat lot to finished part: mill certs, lot numbers laser-marked, certificate of conformance with each shipment.',
+  ],
+  ['Calibration', 'Every gauge on a recall schedule, traceable to NIST.'],
+];
+const certs = ['ISO 9001:2015', 'AS9100D', 'ISO 13485:2016', 'ITAR registered'];
+---
+
+<div class="quality">
+  <dl class="checks">
+    {checks.map(([term, text]) => (
+      <div>
+        <dt>{term}</dt>
+        <dd>{text}</dd>
+      </div>
+    ))}
+  </dl>
+  <div class="certs">
+    <p class="certs-title">Quality system</p>
+    <ul>
+      {certs.map((c) => (
+        <li>{c}</li>
+      ))}
+    </ul>
+    <p class="footnote">
+      <sup>*</sup> Demo claim. Kilnworth Precision is fictional and holds no certifications; a real
+      client site would link each certificate and its registrar.
+    </p>
+  </div>
+</div>
+
+<style>
+  .quality {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+  @media (min-width: 52rem) {
+    .quality {
+      grid-template-columns: 8fr 4fr;
+    }
+  }
+  .checks {
+    margin: 0;
+    border-block-start: 2px solid var(--ink);
+  }
+  .checks div {
+    display: grid;
+    gap: var(--space-1) var(--gutter);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--line);
+  }
+  @media (min-width: 40rem) {
+    .checks div {
+      grid-template-columns: 11rem 1fr;
+    }
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 0;
+    color: var(--steel);
+  }
+  .certs {
+    align-self: start;
+    padding: var(--space-5);
+    border: 1px solid var(--ink);
+    background: var(--white);
+  }
+  .certs-title {
+    font-weight: 600;
+    margin-block-end: var(--space-3);
+  }
+  .certs ul {
+    padding: 0;
+    list-style: none;
+  }
+  .certs li {
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--line);
+    font-size: var(--step-1);
+    font-stretch: var(--width-display);
+    font-weight: 600;
+  }
+  sup,
+  .certs li::after {
+    color: var(--steel);
+    font-weight: 400;
+  }
+  /* footnote mark; in CSS so formatting can never put a space before it */
+  .certs li::after {
+    content: '*';
+    vertical-align: super;
+    font-size: 0.6em;
+  }
+  .footnote {
+    margin-block-start: var(--space-4);
+    font-size: var(--step--1);
+    color: var(--steel);
+  }
+</style>

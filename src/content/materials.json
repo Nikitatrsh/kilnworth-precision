@@ -1,0 +1,86 @@
+[
+  {
+    "id": "al-6061",
+    "name": "Aluminum 6061-T6",
+    "family": "Aluminum",
+    "note": "General purpose. Machines fast, anodizes well, the default for fixtures and housings."
+  },
+  {
+    "id": "al-7075",
+    "name": "Aluminum 7075-T6/T651",
+    "family": "Aluminum",
+    "note": "About 1.8× the yield strength of 6061. Used for aerospace brackets and thin-wall parts."
+  },
+  {
+    "id": "ss-303",
+    "name": "Stainless 303",
+    "family": "Stainless steel",
+    "note": "Free-machining stainless. Good for fittings; not for welding or saltwater."
+  },
+  {
+    "id": "ss-304",
+    "name": "Stainless 304",
+    "family": "Stainless steel",
+    "note": "Common corrosion-resistant grade; work-hardens, so we keep tools sharp and feeds steady."
+  },
+  {
+    "id": "ss-316l",
+    "name": "Stainless 316L",
+    "family": "Stainless steel",
+    "note": "Low carbon, molybdenum added. Medical and fluid-handling parts; passivated through a partner."
+  },
+  {
+    "id": "ss-17-4",
+    "name": "Stainless 17-4 PH",
+    "family": "Stainless steel",
+    "note": "Precipitation-hardened. Machined in condition A, then aged to H900–H1150 by a partner."
+  },
+  {
+    "id": "ti-gr2",
+    "name": "Titanium Grade 2",
+    "family": "Titanium",
+    "note": "Commercially pure. Formable, corrosion resistant, used for medical housings."
+  },
+  {
+    "id": "ti-gr5",
+    "name": "Titanium Grade 5 (6Al-4V)",
+    "family": "Titanium",
+    "note": "The workhorse titanium alloy for implants-adjacent instruments and aerospace fittings."
+  },
+  {
+    "id": "brass-360",
+    "name": "Brass C360",
+    "family": "Copper alloy",
+    "note": "Free-cutting brass. Ideal for Swiss-turned connectors and valve parts."
+  },
+  {
+    "id": "tool-steel",
+    "name": "Tool steel (A2, D2, O1)",
+    "family": "Steel",
+    "note": "For wear parts and tooling. Rough machined, heat treated by a partner, then finished by wire EDM or grinding."
+  },
+  {
+    "id": "inconel-718",
+    "name": "Inconel 718",
+    "family": "Nickel alloy",
+    "note": "Heat-resistant superalloy. Slow to cut and quoted accordingly; we tell you early if a feature is costly."
+  },
+  {
+    "id": "delrin",
+    "name": "Delrin (acetal, POM)",
+    "family": "Plastic",
+    "note": "Stable, low friction, holds tolerance well for a plastic. Gears, bushings, test fixtures."
+  },
+  {
+    "id": "peek",
+    "name": "PEEK",
+    "family": "Plastic",
+    "note": "High-temperature, chemically resistant plastic. Medical and semiconductor parts; annealed stock only."
+  },
+  {
+    "id": "ultem",
+    "name": "Ultem (PEI)",
+    "family": "Plastic",
+    "note": "Amber, flame-retardant, sterilizable. Instrument handles and electrical insulators."
+  }
+]

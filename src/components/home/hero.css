@@ -1,0 +1,182 @@
+/* Styles for Hero.astro. Every selector starts at .hero to stay local. */
+.hero {
+  padding-block-start: var(--space-5);
+}
+.hero .sheet {
+  --zone: 1.5rem;
+  display: grid;
+  grid-template-columns: var(--zone) minmax(0, 1fr) var(--zone);
+  grid-template-rows: var(--zone) auto var(--zone);
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+.hero .sheet-body {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  grid-template-areas: 'main' 'drawing' 'specs' 'meta';
+}
+
+/* Zone markers along the sheet edges, like the A–D / 1–6 grid on a printed drawing */
+.hero .zones {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--steel);
+}
+.hero .zones li {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  max-inline-size: none;
+}
+.hero .zones-x {
+  grid-column: 2;
+  grid-row: 1;
+}
+.hero .zones-x li + li {
+  border-inline-start: 1px solid var(--line);
+}
+.hero .zones-y {
+  grid-column: 1;
+  grid-row: 2;
+  flex-direction: column;
+}
+.hero .zones-y li + li {
+  border-block-start: 1px solid var(--line);
+}
+
+.hero .drawing {
+  grid-area: drawing;
+  border-block: 1px solid var(--ink);
+}
+.hero .drawing-wide {
+  display: none;
+}
+
+.hero .tb-main {
+  grid-area: main;
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+.hero h1 {
+  font-size: clamp(2.1rem, 1.2rem + 2.6vw, 3.15rem);
+}
+/* each sentence on its own line, like two notes on a print */
+.hero h1 > span {
+  display: block;
+}
+/* the tolerance stays in the headline face, not mono, at this size */
+.hero h1 .num {
+  font-family: inherit;
+  font-size: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.hero .lede {
+  color: var(--steel);
+  max-inline-size: 44ch;
+}
+.hero .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-block-start: var(--space-2);
+}
+
+.hero .tb-specs,
+.hero .tb-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+.hero .tb-specs {
+  grid-area: specs;
+}
+.hero .tb-meta {
+  grid-area: meta;
+  grid-template-columns: 2fr 2fr 1fr 1fr;
+  border-block-start: 1px solid var(--ink);
+}
+.hero .tb-specs div {
+  padding: var(--space-3) var(--space-4);
+  border-block-start: 1px solid var(--line);
+}
+.hero .tb-specs div:nth-child(odd) {
+  border-inline-end: 1px solid var(--line);
+}
+.hero .tb-meta div {
+  padding: var(--space-2) var(--space-4);
+  border-inline-end: 1px solid var(--line);
+}
+.hero .tb-meta div:last-child {
+  border-inline-end: 0;
+}
+.hero dt {
+  font-size: var(--step--1);
+  font-stretch: var(--width-label);
+  font-weight: 600;
+  color: var(--steel);
+}
+.hero dd {
+  margin: 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.hero .tb-meta dd {
+  font-size: var(--step--1);
+}
+
+@media (max-width: 40rem) {
+  .hero .sheet {
+    --zone: 0.75rem;
+  }
+  .hero .zones {
+    font-size: 0;
+  }
+  .hero .tb-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hero .tb-meta div:nth-child(2) {
+    border-inline-end: 0;
+  }
+  .hero .tb-meta div:nth-child(n + 3) {
+    border-block-start: 1px solid var(--line);
+  }
+}
+
+/* Wide: drawing left (7 of 12), title block column right */
+@media (min-width: 64rem) {
+  .hero .sheet-body {
+    grid-template-columns: 7fr 5fr;
+    grid-template-areas:
+      'drawing main'
+      'drawing specs'
+      'drawing meta';
+    grid-template-rows: 1fr auto auto;
+  }
+  .hero .drawing {
+    border-block: 0;
+    border-inline-end: 1px solid var(--ink);
+    display: grid;
+    align-items: center;
+    padding: var(--space-4);
+  }
+  .hero .drawing-wide {
+    display: block;
+  }
+  .hero .drawing-narrow {
+    display: none;
+  }
+  .hero .tb-main {
+    padding: var(--space-6) var(--space-5) var(--space-5);
+    align-content: center;
+  }
+}
