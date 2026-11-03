@@ -28,7 +28,7 @@
   html {
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
-    scroll-padding-block-start: var(--space-7);
+    scroll-padding-block-start: calc(var(--header-h) + var(--space-5));
   }
   body {
     background: var(--paper);

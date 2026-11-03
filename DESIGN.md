@@ -69,6 +69,7 @@ On phones the title block drops under the drawing and becomes full width.
 
 ## Components
 
+- **Header**: sticky on every page (opaque `--paper`, 1 px `--line` rule below, no shadow). The demo strip above it scrolls away. Anchors and focused elements stop below it via `scroll-padding` and the `--header-h` token. Exception: on narrow screens without JS the full nav is always open, so the header stays static there.
 - **Button**: primary is solid layout blue with one 45° chamfered corner (clip-path), the only shape motif on the site; it reads as a machined edge break. Secondary is a text link with an underline. Min height 44 px.
 - **Spec list** (`<dl>`): label left in narrow Archivo, value right in Plex Mono. Used in cases, title blocks and process pages.
 - **Data table**: header row on `--paper-2`, rows separated by 1 px `--line`, numbers right-aligned in mono. On narrow screens tables scroll inside a container with a visible "scroll" hint and keep their first column sticky.

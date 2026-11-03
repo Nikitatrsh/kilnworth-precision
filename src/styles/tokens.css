@@ -68,5 +68,8 @@
     --dur: 200ms;
 
     --tap: 44px; /* minimum target size */
+    /* Height of the sticky header (one row: a --tap tall control + padding + border).
+       Used to keep anchor targets, focused elements and other sticky boxes clear of it. */
+    --header-h: calc(var(--tap) + 2 * var(--space-3) + 1px);
   }
 }

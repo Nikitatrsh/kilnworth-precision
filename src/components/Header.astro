@@ -50,7 +50,12 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 </script>
 
 <style>
+  /* Always visible: sticks to the top once the demo strip above it has scrolled away.
+     Opaque background + bottom rule so page content never shows through. */
   .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 5; /* above page content; below the skip link (10) */
     border-block-end: 1px solid var(--line);
     background: var(--paper);
   }
@@ -110,6 +115,16 @@ const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
 
   /* Small screens: with JS the nav collapses behind "Menu"; without JS it simply wraps. */
   @media (max-width: 63.99rem) {
+    /* The open menu can be taller than a short (landscape) phone screen: scroll inside it. */
+    .header {
+      max-block-size: 100dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    /* Without JS the whole nav is always shown here, too tall to pin over the page. */
+    :global(html:not(.js)) .header {
+      position: static;
+    }
     :global(.js) .menu-toggle {
       display: inline-flex;
       align-items: center;
