@@ -98,10 +98,26 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-/* Without JS the step buttons do nothing, so hide them */
-html:not(.js) .rfq-wrap .nav [data-next],
-html:not(.js) .rfq-wrap .nav [data-back] {
+/* Without JS nothing in the form can be sent, so hide it and show the note instead */
+html:not(.js) .rfq-wrap .rfq {
   display: none;
+}
+.rfq-wrap .nojs-note {
+  display: none;
+  padding: var(--space-5);
+  border: 1px solid var(--ink);
+  background: var(--white);
+}
+html:not(.js) .rfq-wrap .nojs-note {
+  display: block;
+}
+.rfq-wrap .nojs-note h2 {
+  margin-block-end: var(--space-3);
+  font-size: var(--step-1);
+  font-stretch: 100%;
+}
+.rfq-wrap .nojs-note p {
+  margin: 0;
 }
 .rfq-wrap .hp {
   position: absolute;

@@ -1,7 +1,6 @@
 ---
 // RFQ step 3: who gets the quote. Includes the honeypot field `kp_extra` (bots fill it), the
 // live status while files upload and the request is sent, and the box for errors of the whole form.
-import { site } from '../../config/site';
 import Field from '../form/Field.astro';
 import Button from '../Button.astro';
 import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
@@ -42,11 +41,4 @@ import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
       Send request for quote
     </Button>
   </div>
-  <noscript>
-    <p class="fine">
-      Sending this form needs JavaScript (drawings upload through it). Without it, email your
-      drawing to <a href={`mailto:${site.email}`}>{site.email}</a> or call{' '}
-      <a href={site.phone.href}>{site.phone.display}</a>.
-    </p>
-  </noscript>
 </fieldset>

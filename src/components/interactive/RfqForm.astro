@@ -1,6 +1,6 @@
 ---
-// Quote request in three steps (Part, Details, Contact). Without JS all steps show as one
-// long form and submit stays disabled (files can only upload with JS); rfq.ts adds stepping,
+// Quote request in three steps (Part, Details, Contact). Without JS the form is hidden and a note
+// with the phone and email takes its place (files can only upload with JS); rfq.ts adds stepping,
 // validation, sending to /api/upload and /api/rfq, and the result view. See README "Quote form backend".
 // Steps: RfqStepPart / RfqStepDetails / RfqStepContact. Styles: rfq.css.
 import './rfq.css';
@@ -8,11 +8,22 @@ import RfqStepPart from './RfqStepPart.astro';
 import RfqStepDetails from './RfqStepDetails.astro';
 import RfqStepContact from './RfqStepContact.astro';
 import RfqSuccess from './RfqSuccess.astro';
+import { site } from '../../config/site';
 
 const steps = ['Part', 'Details', 'Contact'];
 ---
 
 <div class="rfq-wrap">
+  <!-- Shown only while <html> has no "js" class (public/boot.js adds it). -->
+  <div class="nojs-note">
+    <h2>This form needs JavaScript</h2>
+    <p>
+      Drawings are uploaded by a script, so the form is switched off without it. Turn JavaScript on,
+      or send your drawing to <a href={`mailto:${site.email}`}>{site.email}</a> or call{' '}
+      <a href={site.phone.href}>{site.phone.display}</a> ({site.hours}).
+    </p>
+  </div>
+
   <ol class="stepper" data-stepper hidden>
     {steps.map((s, i) => (
       <li data-stepper-item={i}>
