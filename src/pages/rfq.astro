@@ -12,12 +12,7 @@ import { site } from '../config/site';
   <PageHeader
     title="Request a quote"
     intro={`Three short steps. An engineer, not a sales rep, reads your drawing and replies within ${site.quoteTurnaround}.`}
-  >
-    <p class="demo-flag">
-      <strong>Demo:</strong> this form checks what you enter and shows the confirmation, but nothing
-      is sent or stored.
-    </p>
-  </PageHeader>
+  />
 
   <div class="container rfq-layout">
     <RfqForm />
@@ -55,12 +50,6 @@ import { site } from '../config/site';
 </Base>
 
 <style>
-  .demo-flag {
-    justify-self: start;
-    padding: var(--space-2) var(--space-3);
-    background: var(--blue-wash);
-    font-size: var(--step--1);
-  }
   .rfq-layout {
     display: grid;
     gap: var(--space-7) var(--gutter);
