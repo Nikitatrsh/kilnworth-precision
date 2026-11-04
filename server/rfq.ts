@@ -111,9 +111,10 @@ export function handleRfq(request: Request, getDeps: () => Deps): Promise<Respon
 
     const parsed = parseRfq(body, now);
     if (!parsed.ok) throw new HttpError(400, parsed.errors);
-    await limit(deps, `rfq-ok:${ip}`, SUBMISSIONS_PER_HOUR);
 
     const value = { ...parsed.value, files: await verifyFiles(deps, parsed.value.files) };
+    // Counted last, right before mail goes out: a visitor fixing a mistake does not use up the hour.
+    await limit(deps, `rfq-ok:${ip}`, SUBMISSIONS_PER_HOUR);
     const id = deps.newId(now);
     await sendMails(deps, value, id);
     console.log(`[rfq] ${id} accepted, files: ${value.files.length}`); // no names, no addresses

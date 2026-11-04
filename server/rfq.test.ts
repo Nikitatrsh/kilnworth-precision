@@ -228,6 +228,14 @@ describe('POST /api/rfq: rate limit', () => {
     expect((await submit({}, fakes)).status).toBe(200);
   });
 
+  it('does not use it up with files that did not arrive or were refused either', async () => {
+    const fakes = makeFakes(); // knows no files
+    for (let i = 0; i < 8; i++) expect((await submit({}, fakes)).status).toBe(400);
+    withStepFile(fakes);
+    for (let i = 0; i < 5; i++) expect((await submit({}, fakes)).status).toBe(200);
+    expect((await submit({}, fakes)).status).toBe(429);
+  });
+
   it('still limits a flood of broken requests', async () => {
     const fakes = withStepFile(makeFakes());
     for (let i = 0; i < 60; i++) await submit({ part: '' }, fakes);
