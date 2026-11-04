@@ -134,7 +134,7 @@ export function customerMail(
   const rows = summaryRows(r);
   const fileNames = files.length ? files.map(fileLine).join(', ') : 'None';
   // Matches the Privacy page: the shop gets the details by email, the files wait in a private store.
-  const handling = `Your details were emailed to ${demo ? "the site owner's inbox" : "the shop's inbox"}${files.length ? ' and your files are kept in a private file store' : ''}. Nothing is deleted automatically; the Privacy page on our website says who handles your data and how to ask for deletion.`;
+  const handling = `Your details were emailed to ${demo ? "the site owner's inbox" : "the shop's inbox"}${files.length ? ' and your files are kept in a private file store' : ''}. Nothing is deleted automatically; the Privacy page on our website says who handles your data and for how long.`;
   const promise = demo
     ? `This site is a portfolio demo by ${site.demoBy}. ${site.name} is a fictional company, so nobody will prepare a quote. ${handling}`
     : `An engineer will read your request and reply within ${site.quoteTurnaround} with a price per quantity and any manufacturability notes. ${handling}`;
