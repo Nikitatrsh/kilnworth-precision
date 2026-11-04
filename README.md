@@ -140,6 +140,7 @@ npm run dev         # terminal 2: the site on http://localhost:4321; /api is for
 - Emails are written to `.local/outbox/` as `.json` and `.html` (open the `.html` to see the mail as the reader would). A request makes two: the shop's copy and the buyer's auto-reply, with the same request number.
 - Uploaded files land in `.local/uploads/`.
 - `.local/` is ignored by git. Delete it any time.
+- Values in `.env` or `.env.local` (both ignored by git) are loaded by `npm run dev:api`, so test keys can be tried locally too.
 - `npm run smoke:rfq` plays a browser against a fresh API and checks the whole flow (24 MB and 26 MB files, `.exe`, a program renamed to `.step`, honeypot, wrong origin, the rate limit). It needs nothing but Node.
 
 #### API
@@ -195,6 +196,8 @@ The request number is `KP-YYMMDD-XXXXX` (UTC date, five characters without I, L,
 - Local mock mode: `200 { "type": "blob.generate-client-token", "uploadUrl": "/api/upload?pathname=bracket.step" }`. The browser sends the raw file with `PUT` to `uploadUrl`; the answer is `200 { "ok": true, "url": "local:...", "pathname": "...", "size": 2097152 }`. Use that `url` in `/api/rfq`.
 - The two modes are told apart by `clientToken` versus `uploadUrl`; the rest of the browser code is the same.
 - Errors use the same format as above (`errors.files` for the file): 400 bad or empty name, 403 origin, 413 over 25 MB, 415 extension not allowed, 429 more than 30 uploads an hour from one address (with `Retry-After`).
+
+`@vercel/blob/client` is about 32 KB gzipped when bundled for the browser, so import it dynamically (`await import('@vercel/blob/client')`) only when a file is attached; the local mock path needs no SDK at all.
 
 The browser SDK's own `upload()` helper hides these errors behind one generic message, so call the endpoint with `fetch` and then `put()`, as above, to show the server's wording.
 
