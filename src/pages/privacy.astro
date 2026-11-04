@@ -4,10 +4,13 @@ import PageHeader from '../components/PageHeader.astro';
 import { site } from '../config/site';
 ---
 
-<Base title="Privacy" description="What this demo site collects: nothing.">
+<Base
+  title="Privacy"
+  description="What the quote form collects, who processes it and for how long."
+>
   <PageHeader
     title="Privacy"
-    intro="Short version: this is a portfolio demo and it collects nothing."
+    intro="Short version: no tracking. The quote form sends what you enter to the shop by email, and your files to a private store."
   />
   <div class="container prose">
     <h2>This site</h2>
@@ -18,9 +21,46 @@ import { site } from '../config/site';
     </p>
     <h2>The quote form</h2>
     <p>
-      The quote form checks your entries in your browser and shows a confirmation. Nothing you type
-      or attach is uploaded, sent or stored anywhere. Closing the tab discards it.
+      <strong>What it collects:</strong> your name, company, work email and phone (optional), what
+      you write about the part (description, quantities, material, process, tolerance, finishing,
+      paperwork, date, notes) and the drawings you attach.
     </p>
+    <p>
+      <strong>Why:</strong> only to answer that request: the details reach the shop by email, and
+      you get a confirmation with your request number. Nothing is used for marketing, sold or shared
+      beyond the services below.
+    </p>
+    <p>
+      <strong>Who processes it:</strong>
+    </p>
+    <ul>
+      <li>
+        <strong>Resend</strong> delivers the two emails (to the shop and your confirmation).
+      </li>
+      <li>
+        <strong>Vercel</strong> hosts the site and the form's server code. Your files go straight
+        from your browser to a <strong>private Vercel Blob store</strong>: they have no public
+        address. The shop's email contains signed links that stop working after 7 days; after that
+        the files can be opened only by the site owner from the Vercel dashboard.
+      </li>
+    </ul>
+    <p>
+      <strong>How long:</strong> the emails stay in the mailboxes and the files in the store until
+      the site owner deletes them; there is no automatic deletion. To have your request deleted,
+      email <a href={`mailto:${site.email}`}>{site.email}</a> with your request number.
+    </p>
+    <p>
+      <strong>Abuse protection:</strong> to limit automated sending, the server counts requests per
+      IP address in its memory for up to an hour. Its own logs record request numbers and error
+      codes only, never names, addresses or file names.
+    </p>
+    {site.demo && (
+      <p>
+        <strong>On this demo:</strong> {site.name} is fictional, so requests and confirmations go to
+        the developer's test inbox, not to a machine shop or to you, and nobody prepares a quote.
+        Please do not send real or confidential drawings.
+      </p>
+    )}
     <h2>What the browser remembers</h2>
     <p>
       Two settings are saved in your browser's local storage so pages look the way you left them:
@@ -31,11 +71,6 @@ import { site } from '../config/site';
     <p>
       Like any website, the server that delivers these pages may keep standard access logs (IP
       address, time, page requested) for security and operations, under the host's own policy.
-    </p>
-    <h2>On a real client site</h2>
-    <p>
-      A live version would explain what the quote form sends, where it is stored, who can see it and
-      for how long, and how to ask for deletion.
     </p>
   </div>
 </Base>
