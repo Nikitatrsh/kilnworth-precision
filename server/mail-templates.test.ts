@@ -124,6 +124,30 @@ describe('customerMail', () => {
     expect(mail.text).not.toContain('Call (610)'); // no real phone to call in a demo
   });
 
+  it.each([true, false])(
+    'says where the data went and never claims it was used only here (demo: %s)',
+    (demo) => {
+      const m = customerMail(request, ID, links, demo);
+      for (const body of [m.text, m.html]) {
+        expect(body).not.toContain('used only to send you this message');
+        expect(body).toContain('emailed to');
+        expect(body).toContain('private file store');
+        expect(body).toContain('Privacy page');
+      }
+      expect(m.text).toContain(demo ? "the site owner's inbox" : "the shop's inbox");
+    },
+  );
+
+  it('does not mention a file store when no file was attached', () => {
+    expect(customerMail(request, ID, []).text).not.toContain('file store');
+  });
+
+  it('keeps the real turnaround promise outside the demo', () => {
+    const m = customerMail(request, ID, links, false);
+    expect(m.text).toContain('An engineer will read your request');
+    expect(m.text).not.toMatch(/fictional/i);
+  });
+
   it('escapes the visitor name in html', () => {
     expect(customerMail({ ...request, name: '<b>Dana</b>' }, ID, []).html).not.toContain('<b>Dana');
   });

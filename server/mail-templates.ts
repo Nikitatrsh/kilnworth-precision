@@ -125,14 +125,21 @@ export function shopMail(r: RfqRequest, id: string, files: FileLink[]): Mail {
 }
 
 /** Auto-reply to the visitor. It promises only what the site really does. */
-export function customerMail(r: RfqRequest, id: string, files: FileLink[]): Mail {
+export function customerMail(
+  r: RfqRequest,
+  id: string,
+  files: FileLink[],
+  demo: boolean = site.demo,
+): Mail {
   const rows = summaryRows(r);
   const fileNames = files.length ? files.map(fileLine).join(', ') : 'None';
-  const promise = site.demo
-    ? `This site is a portfolio demo by ${site.demoBy}. ${site.name} is a fictional company, so nobody will prepare a quote. Your details were used only to send you this message.`
-    : `An engineer will read your request and reply within ${site.quoteTurnaround} with a price per quantity and any manufacturability notes.`;
+  // Matches the Privacy page: the shop gets the details by email, the files wait in a private store.
+  const handling = `Your details were emailed to ${demo ? "the site owner's inbox" : "the shop's inbox"}${files.length ? ' and your files are kept in a private file store' : ''}. Nothing is deleted automatically; the Privacy page on our website says who handles your data and how to ask for deletion.`;
+  const promise = demo
+    ? `This site is a portfolio demo by ${site.demoBy}. ${site.name} is a fictional company, so nobody will prepare a quote. ${handling}`
+    : `An engineer will read your request and reply within ${site.quoteTurnaround} with a price per quantity and any manufacturability notes. ${handling}`;
   // A demo has no real shop to call.
-  const contact = site.demo
+  const contact = demo
     ? ''
     : `Questions? Call ${site.phone.display} (${site.hours}) and quote ${id}.`;
 
