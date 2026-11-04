@@ -81,12 +81,13 @@ function scalar(
   if (raw === undefined || raw === null) raw = '';
   if (rule.kind === 'number') return number(rule, raw, fail);
   if (typeof raw !== 'string') return fail({ badInput: true });
-  raw = stripBidi(raw); // direction marks are dropped, not refused: they can come from pasted text
-  const text = raw.trim();
-  if ((rule.kind === 'textarea' ? CONTROL : CONTROL_ONE_LINE).test(raw))
+  // Direction marks are dropped, not refused: they can come from pasted text.
+  const clean = stripBidi(raw);
+  const text = clean.trim();
+  if ((rule.kind === 'textarea' ? CONTROL : CONTROL_ONE_LINE).test(clean))
     return fail({ badInput: true });
   if (text === '') return rule.required ? fail({ valueMissing: true }) : { value: '' };
-  if (rule.maxLength !== undefined && raw.length > rule.maxLength) return fail({ tooLong: true });
+  if (rule.maxLength !== undefined && clean.length > rule.maxLength) return fail({ tooLong: true });
   if (rule.kind === 'email' && !EMAIL_PATTERN.test(text)) return fail({ typeMismatch: true });
   // "v" flag, like the browser (see PHONE_PATTERN).
   if (rule.pattern && !new RegExp(`^(?:${rule.pattern})$`, 'v').test(text))
