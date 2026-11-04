@@ -27,10 +27,10 @@ export interface UploadLimits {
 export interface Storage {
   mode: 'blob' | 'local';
   /**
-   * Blob mode: answers the browser's request for an upload token (protocol of @vercel/blob/client).
-   * Local mode does not use it.
+   * Answers the browser's request to start an upload (the event of @vercel/blob/client).
+   * Blob mode returns {type, clientToken}; local mode returns {type, uploadUrl} to send the bytes to.
    */
-  handleClientUpload?(body: unknown, request: Request, limits: UploadLimits): Promise<unknown>;
+  issueUpload(body: unknown, request: Request, limits: UploadLimits): Promise<unknown>;
   /** Local mode: receives the bytes itself, because there is no Blob to send them to. */
   saveLocal?(
     pathname: string,

@@ -44,7 +44,7 @@ export function blobStorage(
   return {
     mode: 'blob',
 
-    async handleClientUpload(body, request, limits) {
+    async issueUpload(body, request, limits) {
       const type = (body as { type?: unknown } | null)?.type;
       if (type !== 'blob.generate-client-token') throw new UploadError('Unsupported request.', 400);
       return sdk.handleUpload({

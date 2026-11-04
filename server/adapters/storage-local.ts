@@ -10,6 +10,18 @@ export function localStorage(dir: string): Storage {
   return {
     mode: 'local',
 
+    async issueUpload(body, _request, limits) {
+      const event = body as { type?: unknown; payload?: { pathname?: unknown } } | null;
+      const pathname = event?.payload?.pathname;
+      if (event?.type !== 'blob.generate-client-token' || typeof pathname !== 'string')
+        throw new UploadError('Unsupported request.', 400);
+      limits.checkName(pathname);
+      return {
+        type: event.type,
+        uploadUrl: `/api/upload?pathname=${encodeURIComponent(pathname)}`,
+      };
+    },
+
     async saveLocal(pathname, body, limits) {
       limits.checkName(pathname);
       const chunks: Uint8Array[] = [];

@@ -91,6 +91,46 @@ describe('localStorage', () => {
   });
 });
 
+describe('localStorage.issueUpload', () => {
+  const event = (pathname: unknown) => ({
+    type: 'blob.generate-client-token',
+    payload: { pathname },
+  });
+
+  it('tells the browser where to send the bytes, after the name check', async () => {
+    const storage = localStorage(await newDir());
+    const answer = await storage.issueUpload(
+      event('my part.step'),
+      new Request('http://localhost'),
+      limits,
+    );
+    expect(answer).toEqual({
+      type: 'blob.generate-client-token',
+      uploadUrl: '/api/upload?pathname=my%20part.step',
+    });
+  });
+
+  it('refuses other events and names that fail the check', async () => {
+    const storage = localStorage(await newDir());
+    const request = new Request('http://localhost');
+    await expect(
+      storage.issueUpload({ type: 'blob.upload-completed' }, request, limits),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(storage.issueUpload(event(42), request, limits)).rejects.toMatchObject({
+      status: 400,
+    });
+    const strict: UploadLimits = {
+      maxBytes: 1,
+      checkName: () => {
+        throw new UploadError('no', 415);
+      },
+    };
+    await expect(storage.issueUpload(event('a.exe'), request, strict)).rejects.toMatchObject({
+      status: 415,
+    });
+  });
+});
+
 describe('readHead', () => {
   it('returns the first bytes and stops reading', async () => {
     let cancelled = false;

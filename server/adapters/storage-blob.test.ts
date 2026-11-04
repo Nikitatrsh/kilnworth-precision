@@ -28,7 +28,7 @@ function fakeSdk(over: Record<string, unknown> = {}) {
   } as never;
 }
 
-describe('blobStorage.handleClientUpload', () => {
+describe('blobStorage.issueUpload', () => {
   it('asks the SDK for a token limited to 25 MB, a random name and one try', async () => {
     const sdk = fakeSdk();
     const request = new Request('https://site.example/api/upload', { method: 'POST' });
@@ -36,7 +36,7 @@ describe('blobStorage.handleClientUpload', () => {
       type: 'blob.generate-client-token',
       payload: { pathname: 'part.step', clientPayload: null, multipart: false },
     };
-    const answer = (await blobStorage(TOKEN, sdk).handleClientUpload!(body, request, limits)) as {
+    const answer = (await blobStorage(TOKEN, sdk).issueUpload(body, request, limits)) as {
       constraints: Record<string, unknown>;
     };
 
@@ -57,7 +57,7 @@ describe('blobStorage.handleClientUpload', () => {
     const sdk = fakeSdk();
     for (const body of [{ type: 'blob.upload-completed', payload: {} }, {}, null]) {
       await expect(
-        blobStorage(TOKEN, sdk).handleClientUpload!(body, new Request('https://x.example'), limits),
+        blobStorage(TOKEN, sdk).issueUpload(body, new Request('https://x.example'), limits),
       ).rejects.toMatchObject({ status: 400 });
     }
     expect(
@@ -78,7 +78,7 @@ describe('blobStorage.handleClientUpload', () => {
     });
     const body = { type: 'blob.generate-client-token', payload: { pathname: 'a.exe' } };
     await expect(
-      blobStorage(TOKEN, sdk).handleClientUpload!(body, new Request('https://x.example'), strict),
+      blobStorage(TOKEN, sdk).issueUpload(body, new Request('https://x.example'), strict),
     ).rejects.toMatchObject({ status: 415 });
   });
 });
