@@ -3,52 +3,32 @@
 import Field from '../form/Field.astro';
 import ChoiceGroup from '../form/ChoiceGroup.astro';
 import Button from '../Button.astro';
-import { TOLERANCE_STEPS } from '../../lib/tolerance';
-
-const toleranceOptions = [
-  { value: 'per-drawing', label: 'As on the drawing' },
-  ...TOLERANCE_STEPS.map((s) => ({ value: s.value, label: `±${s.value} in` })),
-];
-const finishing = [
-  { value: 'anodize', label: 'Anodize (Type II or III)' },
-  { value: 'passivate', label: 'Passivation' },
-  { value: 'heat-treat', label: 'Heat treatment' },
-  { value: 'plating', label: 'Plating or black oxide' },
-  { value: 'marking', label: 'Laser marking' },
-  { value: 'assembly', label: 'Inserts or light assembly' },
-];
-const docs = [
-  { value: 'material-certs', label: 'Material certifications' },
-  { value: 'fai', label: 'First article report (AS9102)' },
-  { value: 'coc', label: 'Certificate of conformance' },
-  { value: 'cmm', label: 'CMM report per lot' },
-];
+import {
+  DOCS_OPTIONS,
+  FIELDS,
+  FINISHING_OPTIONS,
+  TOLERANCE_OPTIONS,
+  formAttrs,
+} from '../../lib/rfq-rules';
 ---
 
 <fieldset class="step" data-step="1">
   <legend>
     <span class="step-of">Step 2 of 3</span> Requirements
   </legend>
-  <Field
-    name="tolerance"
-    label="Tightest tolerance on the drawing"
-    kind="select"
-    required
-    options={toleranceOptions}
-  />
-  <ChoiceGroup name="finishing" legend="Finishing and secondary work" options={finishing} />
-  <ChoiceGroup name="docs" legend="Paperwork with the parts" options={docs} />
+  <Field name="tolerance" {...formAttrs('tolerance')} kind="select" options={TOLERANCE_OPTIONS} />
+  <ChoiceGroup name="finishing" legend={FIELDS.finishing.label} options={FINISHING_OPTIONS} />
+  <ChoiceGroup name="docs" legend={FIELDS.docs.label} options={DOCS_OPTIONS} />
   <Field
     name="date"
-    label="Parts needed by"
+    {...formAttrs('date')}
     kind="date"
     hint="Leave empty if you just want a lead time."
   />
   <Field
     name="notes"
-    label="Notes for the engineer"
+    {...formAttrs('notes')}
     kind="textarea"
-    maxlength="2000"
     hint="Critical features, how the part is used, anything the drawing does not say."
   />
   <div class="nav">

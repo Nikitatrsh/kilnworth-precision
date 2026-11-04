@@ -2,6 +2,7 @@
 // RFQ step 3: who gets the quote. Includes the honeypot field `website` (bots fill it).
 import Field from '../form/Field.astro';
 import Button from '../Button.astro';
+import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
 ---
 
 <fieldset class="step" data-step="2">
@@ -9,30 +10,16 @@ import Button from '../Button.astro';
     <span class="step-of">Step 3 of 3</span> Where to send the quote
   </legend>
   <div class="two">
-    <Field name="name" label="Your name" required autocomplete="name" maxlength="80" />
-    <Field name="company" label="Company" required autocomplete="organization" maxlength="120" />
+    <Field name="name" {...formAttrs('name')} autocomplete="name" />
+    <Field name="company" {...formAttrs('company')} autocomplete="organization" />
   </div>
   <div class="two">
-    <Field
-      name="email"
-      label="Work email"
-      kind="email"
-      required
-      autocomplete="email"
-      maxlength="120"
-    />
-    <Field
-      name="phone"
-      label="Phone"
-      kind="tel"
-      autocomplete="tel"
-      pattern="[0-9+()\-. ]{7,20}"
-      maxlength="20"
-    />
+    <Field name="email" {...formAttrs('email')} kind="email" autocomplete="email" />
+    <Field name="phone" {...formAttrs('phone')} kind="tel" autocomplete="tel" />
   </div>
   <div class="hp" aria-hidden="true">
     <label for="f-website">Leave this field empty</label>
-    <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    <input id="f-website" name={HONEYPOT_FIELD} type="text" tabindex="-1" autocomplete="off" />
   </div>
   <p class="fine">
     We use these details only to answer this request. <a href="/privacy">Privacy</a>
