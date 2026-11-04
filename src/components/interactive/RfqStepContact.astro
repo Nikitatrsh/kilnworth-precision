@@ -1,5 +1,7 @@
 ---
-// RFQ step 3: who gets the quote. Includes the honeypot field `website` (bots fill it).
+// RFQ step 3: who gets the quote. Includes the honeypot field `website` (bots fill it), the
+// live status while files upload and the request is sent, and the box for errors of the whole form.
+import { site } from '../../config/site';
 import Field from '../form/Field.astro';
 import Button from '../Button.astro';
 import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
@@ -24,6 +26,14 @@ import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
   <p class="fine">
     We use these details only to answer this request. <a href="/privacy">Privacy</a>
   </p>
+  <div class="send-error" data-send-error role="alert" tabindex="-1" hidden></div>
+  <div class="send-status">
+    <!-- Always rendered (only empty), so screen readers already watch it when the text changes. -->
+    <p role="status" data-status-text></p>
+    <progress data-progress max="1" value="0" hidden>
+      Uploading
+    </progress>
+  </div>
   <div class="nav">
     <Button type="button" variant="secondary" data-back>
       Back to requirements
@@ -34,8 +44,9 @@ import { HONEYPOT_FIELD, formAttrs } from '../../lib/rfq-rules';
   </div>
   <noscript>
     <p class="fine">
-      This demo needs JavaScript to check the form and show the confirmation. Nothing is sent either
-      way.
+      Sending this form needs JavaScript (drawings upload through it). Without it, email your
+      drawing to <a href={`mailto:${site.email}`}>{site.email}</a> or call{' '}
+      <a href={site.phone.href}>{site.phone.display}</a>.
     </p>
   </noscript>
 </fieldset>

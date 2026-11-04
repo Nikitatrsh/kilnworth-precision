@@ -1,6 +1,8 @@
-// Behavior for RfqForm.astro: steps, inline validation, file list, demo confirmation.
-// Rules live in src/lib/rfq-validate.ts (unit-tested). All user text is written with
-// textContent, never innerHTML.
+// Behavior for RfqForm.astro: steps, inline validation, file list, sending to /api.
+// Rules live in src/lib/rfq-validate.ts and rfq-rules.ts (unit-tested), the network part in
+// src/lib/api.ts and upload.ts. All user and server text is written with textContent, never innerHTML.
+import { ApiError, NETWORK_TEXT, postJson } from '../../lib/api';
+import { FIELDS, requestBody } from '../../lib/rfq-rules';
 import {
   fieldMessage,
   formatBytes,
@@ -8,6 +10,7 @@ import {
   validateFiles,
   validateTargetDate,
 } from '../../lib/rfq-validate';
+import { uploadFile, type UploadedFile } from '../../lib/upload';
 
 type Control = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 type Kind = Parameters<typeof fieldMessage>[1]['kind'];
@@ -27,6 +30,13 @@ function init(form: HTMLFormElement) {
   const description = form.elements.namedItem('description') as HTMLTextAreaElement;
   const fileCount = () => fileInput.files?.length ?? 0;
   const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+  const submitText = submit.textContent;
+  const sendError = form.querySelector<HTMLElement>('[data-send-error]')!;
+  const statusText = form.querySelector<HTMLElement>('[data-status-text]')!;
+  const progress = form.querySelector<HTMLProgressElement>('[data-progress]')!;
+  // Files already in storage, kept across retries so a second try does not upload them again.
+  const uploaded = new Map<File, UploadedFile>();
+  let sending = false;
   let current = 0;
 
   submit.disabled = false;
@@ -53,12 +63,16 @@ function init(form: HTMLFormElement) {
           });
     if (!msg && kind === 'date') msg = validateTargetDate(el.value);
     if (!msg && el === description) msg = validateDescription(el.value, fileCount());
+    setFieldError(el, msg);
+    return msg;
+  }
+
+  function setFieldError(el: Control, msg: string | null) {
     const error = document.getElementById(`${el.id}-error`)!;
     error.textContent = msg ?? '';
     error.hidden = !msg;
     if (msg) el.setAttribute('aria-invalid', 'true');
     else el.removeAttribute('aria-invalid');
-    return msg;
   }
 
   /** Validates one step; returns the first invalid control, if any. */
@@ -101,14 +115,28 @@ function init(form: HTMLFormElement) {
     if (el.hasAttribute('aria-invalid')) check(el);
   });
 
-  fileInput.addEventListener('change', () => {
+  const chosenFiles = () => [...(fileInput.files ?? [])];
+
+  function renderFiles() {
     fileList.replaceChildren(
-      ...[...(fileInput.files ?? [])].map((f) => {
+      ...chosenFiles().map((f) => {
         const li = document.createElement('li');
         li.textContent = `${f.name}, ${formatBytes(f.size)}`;
+        if (uploaded.has(f)) {
+          const done = document.createElement('span');
+          done.className = 'done';
+          done.textContent = ', uploaded';
+          li.append(done);
+        }
         return li;
       }),
     );
+  }
+
+  fileInput.addEventListener('change', () => {
+    const chosen = chosenFiles();
+    for (const f of uploaded.keys()) if (!chosen.includes(f)) uploaded.delete(f);
+    renderFiles();
     check(fileInput);
     // Attaching a file can clear "describe the part"; removing one can bring it back.
     if (description.hasAttribute('aria-invalid')) check(description);
@@ -116,6 +144,7 @@ function init(form: HTMLFormElement) {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (sending) return; // a second click while the first request runs does nothing
     if (current < steps.length - 1) return next(); // Enter in a field moves one step, not to the end
     for (let i = 0; i < steps.length; i++) {
       const bad = firstInvalid(i);
@@ -124,23 +153,122 @@ function init(form: HTMLFormElement) {
         return bad.focus();
       }
     }
-    // A filled honeypot means a bot. A real backend would drop the request silently;
-    // the demo shows the same confirmation so the bot learns nothing.
-    renderSummary(new FormData(form));
+    void send();
+  });
+
+  function setBusy(busy: boolean) {
+    sending = busy;
+    form.setAttribute('aria-busy', String(busy));
+    submit.disabled = busy;
+    submit.textContent = busy ? 'Sending…' : submitText;
+    form.querySelectorAll<HTMLButtonElement>('[data-back]').forEach((b) => (b.disabled = busy));
+    if (!busy) {
+      statusText.textContent = '';
+      progress.hidden = true;
+    }
+  }
+
+  /** Uploads the files not yet in storage, then posts the request. Errors keep every entry. */
+  async function send() {
+    const data = new FormData(form); // what the visitor confirmed; later edits wait for the next try
+    const files = chosenFiles();
+    setBusy(true);
+    sendError.hidden = true;
+    let posted = false;
+    try {
+      const sent: UploadedFile[] = [];
+      for (const [i, file] of files.entries()) {
+        let done = uploaded.get(file);
+        if (!done) {
+          statusText.textContent = `Uploading ${file.name} (file ${i + 1} of ${files.length})…`;
+          progress.value = 0;
+          progress.hidden = false;
+          done = await uploadFile(file, (fraction) => (progress.value = fraction));
+          uploaded.set(file, done);
+          renderFiles();
+        }
+        sent.push(done);
+      }
+      progress.hidden = true;
+      statusText.textContent = 'Sending your request…';
+      posted = true;
+      const { id } = await postJson<{ id: string }>('/api/rfq', requestBody(data, sent));
+      setBusy(false);
+      showSuccess(id, data);
+    } catch (error) {
+      setBusy(false);
+      const known = error instanceof ApiError ? error : new ApiError(0, { form: NETWORK_TEXT });
+      // /api/rfq could not find or accept a stored file: upload the files again on the next try.
+      if (posted && known.errors.files) {
+        uploaded.clear();
+        renderFiles();
+      }
+      showErrors(known);
+    }
+  }
+
+  /** Server messages go next to their field; the rest into the box above the buttons. */
+  function showErrors({ errors }: ApiError) {
+    const general: string[] = [];
+    let first: Control | null = null;
+    for (const [name, message] of Object.entries(errors) as [string, string][]) {
+      const el = form.querySelector<Control>(`#f-${CSS.escape(name)}[data-kind]`);
+      if (!el || name === 'files') {
+        const label = (FIELDS as Record<string, { label: string }>)[name]?.label;
+        general.push(label ? `${label}: ${message}` : message);
+        continue;
+      }
+      setFieldError(el, message);
+      // The first field in page order gets the focus.
+      if (!first || first.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING)
+        first = el;
+    }
+    renderGeneral(general, 'files' in errors);
+    if (first) {
+      show(steps.findIndex((step) => step.contains(first)));
+      first.focus();
+    } else sendError.focus();
+  }
+
+  function renderGeneral(messages: string[], fileProblem: boolean) {
+    const kept = document.createElement('p');
+    kept.className = 'kept';
+    kept.textContent = fileProblem
+      ? 'Your other entries are kept.'
+      : 'Your entries and any uploaded files are kept.';
+    const toFiles = document.createElement('button');
+    toFiles.type = 'button';
+    toFiles.textContent = 'Change the files';
+    toFiles.addEventListener('click', () => {
+      show(0);
+      fileInput.focus();
+    });
+    sendError.replaceChildren(
+      ...messages.map((m) => Object.assign(document.createElement('p'), { textContent: m })),
+      kept,
+      ...(fileProblem ? [toFiles] : []),
+    );
+    sendError.hidden = !messages.length;
+  }
+
+  function showSuccess(id: string, data: FormData) {
+    success.querySelector('[data-request-id]')!.textContent = id;
+    const replyTo = success.querySelector('[data-reply-email]');
+    if (replyTo) replyTo.textContent = String(data.get('email'));
+    renderSummary(data);
     form.hidden = true;
     stepper.hidden = true;
     success.hidden = false;
     success.focus();
     success.scrollIntoView({ block: 'start' });
-  });
+  }
 
   success.querySelector('[data-again]')!.addEventListener('click', () => {
     form.reset();
+    uploaded.clear();
     fileList.replaceChildren();
-    controls(form).forEach((el) => {
-      el.removeAttribute('aria-invalid');
-      document.getElementById(`${el.id}-error`)!.hidden = true;
-    });
+    sendError.hidden = true;
+    controls(form).forEach((el) => setFieldError(el, null));
     success.hidden = true;
     form.hidden = false;
     stepper.hidden = false;
@@ -153,7 +281,9 @@ function init(form: HTMLFormElement) {
   }
 
   function renderSummary(data: FormData) {
-    const files = [...(fileInput.files ?? [])].map((f) => f.name).join(', ');
+    const files = chosenFiles()
+      .map((f) => f.name)
+      .join(', ');
     const rows: [string, string][] = [
       ['Part', String(data.get('part'))],
       ['Files', files || 'None; description given'],

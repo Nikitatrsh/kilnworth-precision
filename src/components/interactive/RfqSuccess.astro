@@ -1,14 +1,25 @@
 ---
-// Shown after a valid submit. Filled with textContent by rfq.ts (never innerHTML).
+// Shown once /api/rfq accepted the request. Filled with textContent by rfq.ts (never innerHTML).
 import { site } from '../../config/site';
 ---
 
 <section class="success" data-success hidden tabindex="-1" aria-labelledby="success-title">
-  <h2 id="success-title">Request ready for review</h2>
-  <p class="demo-note">
-    <strong>Demo: nothing was sent.</strong> On a live site this is the confirmation a buyer sees;
-    your entries never left this browser tab.
+  <h2 id="success-title">Request sent</h2>
+  <p class="ref">
+    <span>Request number</span>
+    <strong data-request-id></strong>
   </p>
+  {site.demo ? (
+    <p class="demo-note">
+      <strong>Portfolio demo:</strong> {site.name} is fictional, so this request and its
+      confirmation email went to the developer's test inbox, not to a machine shop or to you.
+    </p>
+  ) : (
+    <p>
+      A confirmation with this number is on its way to <span data-reply-email />. Quote it if you
+      call or write about this part.
+    </p>
+  )}
   <dl class="summary" data-summary></dl>
   <h3>What happens next</h3>
   <ol class="next">
@@ -49,6 +60,22 @@ import { site } from '../../config/site';
   }
   h2 {
     font-size: var(--step-3);
+  }
+  .ref {
+    display: grid;
+    gap: var(--space-1);
+    justify-self: start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--ink);
+  }
+  .ref span {
+    color: var(--steel);
+    font-size: var(--step--1);
+  }
+  .ref strong {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    letter-spacing: 0.04em;
   }
   .demo-note {
     padding: var(--space-3) var(--space-4);

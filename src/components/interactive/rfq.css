@@ -114,3 +114,78 @@ html:not(.js) .rfq-wrap .nav [data-back] {
   font-size: var(--step--1);
   color: var(--steel);
 }
+/* While sending: what is happening now, and a bar for the file being uploaded */
+.rfq-wrap .send-status {
+  display: grid;
+  gap: var(--space-2);
+}
+.rfq-wrap .send-status p:empty {
+  margin: 0; /* nothing to show, but stays rendered as a live region */
+}
+.rfq-wrap .send-status p {
+  font-weight: 600;
+}
+.rfq-wrap .send-status progress {
+  inline-size: 100%;
+  block-size: 6px;
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: var(--paper-2);
+  color: var(--blue);
+}
+.rfq-wrap .send-status progress::-webkit-progress-bar {
+  background: var(--paper-2);
+}
+.rfq-wrap .send-status progress::-webkit-progress-value {
+  background: var(--blue);
+  transition: inline-size var(--dur) var(--ease-out);
+}
+.rfq-wrap .send-status progress::-moz-progress-bar {
+  background: var(--blue);
+}
+.rfq-wrap .send-status progress[hidden] {
+  display: none;
+}
+/* Errors that belong to the whole request (connection, limit, server, files) */
+.rfq-wrap .send-error {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 4px solid var(--error);
+  background: var(--white);
+  color: var(--error);
+  font-weight: 600;
+}
+.rfq-wrap .send-error[hidden] {
+  display: none;
+}
+.rfq-wrap .send-error:focus {
+  outline: 2px solid var(--error);
+  outline-offset: 2px;
+}
+.rfq-wrap .send-error p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.rfq-wrap .send-error .kept {
+  color: var(--ink);
+  font-weight: 400;
+}
+.rfq-wrap .file-list .done {
+  color: var(--steel);
+}
+.rfq-wrap .rfq[aria-busy='true'] .nav [data-submit] {
+  cursor: progress;
+}
+.rfq-wrap .send-error button {
+  justify-self: start;
+  min-block-size: var(--tap);
+  padding-inline: var(--space-4);
+  background: var(--white);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}

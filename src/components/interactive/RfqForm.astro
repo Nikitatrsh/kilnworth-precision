@@ -1,7 +1,7 @@
 ---
 // Quote request in three steps (Part, Details, Contact). Without JS all steps show as one
-// long form and submit stays disabled; rfq.ts adds stepping, validation and the result view.
-// DEMO: nothing is sent anywhere. See README "Connecting a real form backend".
+// long form and submit stays disabled (files can only upload with JS); rfq.ts adds stepping,
+// validation, sending to /api/upload and /api/rfq, and the result view. See README "Quote form backend".
 // Steps: RfqStepPart / RfqStepDetails / RfqStepContact. Styles: rfq.css.
 import './rfq.css';
 import RfqStepPart from './RfqStepPart.astro';
