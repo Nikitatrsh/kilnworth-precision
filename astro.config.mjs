@@ -15,6 +15,9 @@ export default defineConfig({
   // Astro 7 defaults to 'jsx' whitespace rules, which drop spaces between inline tags in prose.
   compressHTML: true,
   vite: {
+    // `astro dev` sends /api/* to `npm run dev:api` (the local stand-in for Vercel Functions),
+    // so the form on :4321 can post to /api without CORS. Dev only; Vercel serves /api itself.
+    server: { proxy: { '/api': `http://localhost:${process.env.API_PORT || 8787}` } },
     // Same reason as inlineStylesheets: never inline scripts or assets as data:/inline blocks.
     build: { assetsInlineLimit: 0 },
   },
