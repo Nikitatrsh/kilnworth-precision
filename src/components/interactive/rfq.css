@@ -191,7 +191,7 @@ html:not(.js) .rfq-wrap .nojs-note {
 .rfq-wrap .file-list .done {
   color: var(--steel);
 }
-.rfq-wrap .rfq[aria-busy='true'] .nav [data-submit] {
+.rfq-wrap .rfq[data-sending] .nav [data-submit] {
   cursor: progress;
 }
 .rfq-wrap .send-error button {

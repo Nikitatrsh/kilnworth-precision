@@ -158,7 +158,8 @@ function init(form: HTMLFormElement) {
 
   function setBusy(busy: boolean) {
     sending = busy;
-    form.setAttribute('aria-busy', String(busy));
+    // Not aria-busy: it can make screen readers hold back the status line inside the form.
+    form.toggleAttribute('data-sending', busy);
     submit.disabled = busy;
     submit.textContent = busy ? 'Sending…' : submitText;
     form.querySelectorAll<HTMLButtonElement>('[data-back]').forEach((b) => (b.disabled = busy));
