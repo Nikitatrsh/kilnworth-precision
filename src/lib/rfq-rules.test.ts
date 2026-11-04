@@ -7,8 +7,10 @@ import {
   MATERIAL_OPTIONS,
   PROCESS_OPTIONS,
   formAttrs,
+  requestBody,
   type FieldRule,
 } from './rfq-rules';
+import { parseRfq } from '../../server/validate';
 
 const ids = (options: readonly { value: string }[]) => options.map((o) => o.value);
 
@@ -113,4 +115,47 @@ describe.skipIf(!built)('built form matches the rules table', () => {
       }
     });
   }
+});
+
+describe('requestBody', () => {
+  const filled = () => {
+    const data = new FormData();
+    data.set('part', 'Bracket 12-004');
+    data.set('process', '5-axis-milling');
+    data.set('material', 'al-6061');
+    data.set('quantity', '25');
+    data.set('tolerance', 'per-drawing');
+    data.append('finishing', 'anodize');
+    data.append('finishing', 'marking');
+    data.set('name', 'Dana Example');
+    data.set('company', 'Example Robotics');
+    data.set('email', 'dana@example.com');
+    data.set(HONEYPOT_FIELD, '');
+    data.append('files', new File(['x'], 'bracket.step')); // the raw input: never sent as is
+    return data;
+  };
+  const uploaded = [{ url: 'local:abc-bracket.step', name: 'bracket.step', size: 1 }];
+
+  it('builds what the server accepts, with the uploaded files instead of the raw input', () => {
+    const body = requestBody(filled(), uploaded);
+    expect(body.files).toEqual(uploaded);
+    expect(body.finishing).toEqual(['anodize', 'marking']);
+    expect(body.docs).toEqual([]);
+    const parsed = parseRfq(body);
+    expect(parsed.ok, JSON.stringify(parsed)).toBe(true);
+  });
+
+  it('sends the honeypot exactly as typed', () => {
+    const data = filled();
+    data.set(HONEYPOT_FIELD, 'http://spam.example');
+    expect(requestBody(data, [])[HONEYPOT_FIELD]).toBe('http://spam.example');
+  });
+
+  it('sends only the table fields, the honeypot and files', () => {
+    const data = filled();
+    data.set('extra', 'x');
+    expect(Object.keys(requestBody(data, [])).sort()).toEqual(
+      [...Object.keys(FIELDS), HONEYPOT_FIELD, 'files'].sort(),
+    );
+  });
 });

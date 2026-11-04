@@ -122,3 +122,19 @@ export function formAttrs(name: FieldName) {
     pattern: rule.pattern,
   };
 }
+
+/**
+ * JSON body for POST /api/rfq from the form's own data: every field in the table, the honeypot
+ * as typed, and the files as uploaded ({url, name, size}) instead of the raw file input.
+ */
+export function requestBody(
+  data: FormData,
+  files: readonly { url: string; name: string; size: number }[],
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  for (const [name, rule] of Object.entries<FieldRule>(FIELDS))
+    body[name] = rule.kind === 'choices' ? data.getAll(name) : (data.get(name) ?? '');
+  body[HONEYPOT_FIELD] = data.get(HONEYPOT_FIELD) ?? '';
+  body.files = files;
+  return body;
+}
