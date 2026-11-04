@@ -39,6 +39,40 @@ const errorsOf = (over: Record<string, unknown>): Errors => {
   return r.errors;
 };
 
+describe('parseRfq: direction marks', () => {
+  const marks = '\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069';
+
+  it.each([...marks])('removes U+%s from text fields and file names', (mark) => {
+    const r = parseRfq(
+      valid({
+        part: `Bracket${mark}1`,
+        notes: `a${mark}b`,
+        files: [{ url: 'https://s.example/f.step', name: `x${mark}fdp.step`, size: 10 }],
+      }),
+      today,
+    );
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.value.part).toBe('Bracket1');
+      expect(r.value.notes).toBe('ab');
+      expect(r.value.files[0].name).toBe('xfdp.step');
+    }
+  });
+
+  it('keeps real right-to-left letters', () => {
+    const r = parseRfq(valid({ company: 'شركة' }), today);
+    expect(r.ok && r.value.company).toBe('شركة');
+  });
+
+  it('refuses a file name that is nothing but marks', () => {
+    const r = parseRfq(
+      valid({ files: [{ url: 'https://s.example/f.step', name: '\u202e', size: 10 }] }),
+      today,
+    );
+    expect(r.ok).toBe(false);
+  });
+});
+
 describe('parseRfq: valid input', () => {
   it('returns a clean, typed request', () => {
     const r = parseRfq(valid(), today);

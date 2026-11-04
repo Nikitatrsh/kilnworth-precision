@@ -11,6 +11,7 @@ import {
   type Option,
 } from '../src/lib/rfq-rules.js';
 import { formatBytes } from '../src/lib/rfq-validate.js';
+import { stripBidi } from './text.js';
 import type { RfqRequest } from './validate.js';
 
 export interface FileLink {
@@ -33,10 +34,10 @@ const ESCAPES: Record<string, string> = {
 };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
-// Control characters (CR and LF included) and right-to-left overrides that could disguise a subject.
-const UNSAFE_IN_SUBJECT = /[\u0000-\u001f\u007f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g;
+// Control characters (CR and LF included) become spaces; direction marks are removed (stripBidi).
+const CONTROLS = /[\u0000-\u001f\u007f\u2028\u2029]/g;
 const oneLine = (s: string, max = 150) =>
-  s.replace(UNSAFE_IN_SUBJECT, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+  stripBidi(s).replace(CONTROLS, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 
 const labelOf = (options: readonly Option[], value: string) =>
   options.find((o) => o.value === value)?.label ?? value;

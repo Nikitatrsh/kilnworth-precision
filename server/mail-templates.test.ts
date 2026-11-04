@@ -86,6 +86,8 @@ describe('shopMail', () => {
       company: 'Acme\u202eevil',
     };
     expect(shopMail(hostile, ID, links).subject).not.toMatch(/[\r\n\u202e]/);
+    const marked = { ...request, part: 'a\u200eb\u061cc', company: 'Acme' };
+    expect(shopMail(marked, ID, links).subject).toBe(`Quote request ${ID}: abc x 250, Acme`);
   });
 
   it('shortens a very long subject', () => {

@@ -43,6 +43,29 @@ const submit = (
   headers?: Record<string, string>,
 ) => call(browserPost('/api/rfq', payload(over), headers), fakes);
 
+describe('POST /api/rfq: direction marks', () => {
+  it('reach neither the shop mail nor the auto-reply, in text fields or file names', async () => {
+    const fakes = withStepFile(makeFakes());
+    const { status } = await submit(
+      {
+        part: 'Bracket\u202e 4417',
+        notes: 'see\u2066 sketch\u2069',
+        name: 'Dana\u200f Whitfield',
+        files: [{ url: STEP_URL, name: 'x\u202efdp.step', size: 2 * MB }],
+      },
+      fakes,
+    );
+    expect(status).toBe(200);
+    for (const mail of fakes.sent) {
+      expect(`${mail.subject}${mail.text}${mail.html}`).not.toMatch(
+        /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/,
+      );
+    }
+    expect(fakes.sent[0].text).toContain('xfdp.step');
+    expect(fakes.sent[0].text).toContain('Bracket 4417');
+  });
+});
+
 describe('POST /api/rfq: success', () => {
   it('accepts a request with a file and sends the shop mail and the auto-reply with one number', async () => {
     const { status, json, fakes } = await submit();

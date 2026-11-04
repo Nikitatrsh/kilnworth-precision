@@ -8,6 +8,7 @@ import {
   validateFiles,
   validateTargetDate,
 } from '../src/lib/rfq-validate.js';
+import { stripBidi } from './text.js';
 
 export interface RfqFile {
   url: string;
@@ -80,6 +81,7 @@ function scalar(
   if (raw === undefined || raw === null) raw = '';
   if (rule.kind === 'number') return number(rule, raw, fail);
   if (typeof raw !== 'string') return fail({ badInput: true });
+  raw = stripBidi(raw); // direction marks are dropped, not refused: they can come from pasted text
   const text = raw.trim();
   if ((rule.kind === 'textarea' ? CONTROL : CONTROL_ONE_LINE).test(raw))
     return fail({ badInput: true });
@@ -129,7 +131,8 @@ function files(raw: unknown): RfqFile[] | null {
   const list: RfqFile[] = [];
   for (const item of raw) {
     if (!isRecord(item)) return null;
-    const { url, name, size } = item;
+    const { url, size } = item;
+    const name = typeof item.name === 'string' ? stripBidi(item.name) : item.name;
     if (typeof url !== 'string' || url === '' || url.length > MAX_URL) return null;
     if (
       typeof name !== 'string' ||
