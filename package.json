@@ -11,6 +11,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "dev:api": "node scripts/dev-api.mjs",
+    "smoke:rfq": "node scripts/rfq-smoke.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
