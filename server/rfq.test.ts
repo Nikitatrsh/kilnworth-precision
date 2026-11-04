@@ -23,7 +23,7 @@ const payload = (over: Record<string, unknown> = {}) => ({
   company: 'Northline Robotics',
   email: 'dana@northline.example',
   phone: '',
-  website: '',
+  kp_extra: '',
   files: [{ url: STEP_URL, name: 'bracket.step', size: 2 * MB }],
   ...over,
 });
@@ -196,7 +196,7 @@ describe('POST /api/rfq: where the request comes from', () => {
 describe('POST /api/rfq: bots', () => {
   it('answers a filled honeypot with the same ok, and does nothing else', async () => {
     const fakes = withStepFile(makeFakes());
-    const { status, json } = await submit({ website: 'http://spam.example' }, fakes);
+    const { status, json } = await submit({ kp_extra: 'http://spam.example' }, fakes);
     expect(status).toBe(200);
     expect(json).toEqual({ ok: true, id: 'KP-261104-TEST7' });
     expect(fakes.sent).toHaveLength(0);
@@ -204,7 +204,7 @@ describe('POST /api/rfq: bots', () => {
   });
 
   it('drops the request even when the other fields are junk', async () => {
-    const { status, fakes } = await submit({ website: 'x', part: '', email: 'bad' });
+    const { status, fakes } = await submit({ kp_extra: 'x', part: '', email: 'bad' });
     expect(status).toBe(200);
     expect(fakes.sent).toHaveLength(0);
   });

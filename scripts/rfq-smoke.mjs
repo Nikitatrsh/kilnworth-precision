@@ -76,7 +76,7 @@ const form = (over = {}) => ({
   company: 'Test Company',
   email: 'smoke@example.com',
   phone: '',
-  website: '',
+  kp_extra: '',
   files: [],
   ...over,
 });
@@ -157,7 +157,7 @@ try {
 
   // 5. Bots and strangers.
   const before = (await outbox()).length;
-  const bot = await (await post('/api/rfq', form({ website: 'http://spam.example' }))).json();
+  const bot = await (await post('/api/rfq', form({ kp_extra: 'http://spam.example' }))).json();
   check('honeypot gets "ok" and an id', bot.ok === true && Boolean(bot.id));
   check('honeypot sends no mail', (await outbox()).length === before);
   const foreign = await post('/api/rfq', form(), { origin: 'https://evil.example' });

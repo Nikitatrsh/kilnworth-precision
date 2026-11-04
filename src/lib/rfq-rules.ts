@@ -103,8 +103,12 @@ export const FIELDS = {
 
 export type FieldName = keyof typeof FIELDS;
 
-/** Hidden trap field: people never see it, bots fill it. */
-export const HONEYPOT_FIELD = 'website';
+/**
+ * Hidden trap field: people never see it, bots fill it. The name is deliberately odd: password
+ * managers and browsers autofill names like website, url, email or phone, and a real request
+ * caught by the trap is lost without a trace.
+ */
+export const HONEYPOT_FIELD = 'kp_extra';
 
 /** Same check as the browser's type="email" (WHATWG spec), so both sides accept the same addresses. */
 export const EMAIL_PATTERN =

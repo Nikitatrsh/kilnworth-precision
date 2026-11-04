@@ -177,7 +177,7 @@ Every response is JSON with `Cache-Control: no-store`. Errors always look like `
 | `email` | string | required, up to 120, same check as the browser's `type="email"` |
 | `phone` | string | optional, up to 20, digits `+ ( ) - .` and spaces, 7 or more |
 | `files` | array of `{ url, name, size }` | up to 5; `url` and `size` from the upload (below); `name` the file's own name, extension STEP, STP, IGES, IGS, DWG, DXF or PDF |
-| `website` | string | the honeypot: send the hidden field exactly as it is (empty for people) |
+| `kp_extra` | string | the honeypot: send the hidden field exactly as it is (empty for people) |
 
 All lists and limits live in one table, `src/lib/rfq-rules.ts`; the form is built from the same table. Other fields are ignored. Text fields must not contain control characters (line breaks are fine in `description` and `notes` only).
 

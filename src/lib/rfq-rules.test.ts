@@ -117,6 +117,14 @@ describe.skipIf(!built)('built form matches the rules table', () => {
   }
 });
 
+describe('HONEYPOT_FIELD', () => {
+  it('is not a name that browsers or password managers autofill', () => {
+    const common = ['website', 'url', 'email', 'phone', 'name', 'address', 'company', 'fax'];
+    expect(common).not.toContain(HONEYPOT_FIELD);
+    expect(Object.keys(FIELDS)).not.toContain(HONEYPOT_FIELD);
+  });
+});
+
 describe('requestBody', () => {
   const filled = () => {
     const data = new FormData();

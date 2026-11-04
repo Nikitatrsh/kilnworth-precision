@@ -28,7 +28,7 @@ const valid = (over: Record<string, unknown> = {}) => ({
   company: 'Northline Robotics',
   email: 'dana@northline.example',
   phone: '(610) 555-0123',
-  website: '',
+  kp_extra: '',
   files: [file()],
   ...over,
 });
@@ -103,7 +103,7 @@ describe('parseRfq: valid input', () => {
     const keys = Object.keys(r.ok ? r.value : {});
     expect(keys).not.toContain('isAdmin');
     expect(keys).not.toContain('to');
-    expect(keys).not.toContain('website'); // the honeypot is read by the handler, never forwarded
+    expect(keys).not.toContain('kp_extra'); // the honeypot is read by the handler, never forwarded
     expect(({} as Record<string, unknown>).polluted).toBeUndefined();
   });
 
