@@ -9,7 +9,7 @@ It shows the kind of site we build for B2B manufacturers: one whose job is to tu
 What is on it:
 
 - A home page built around an engineering drawing of a real-looking part, with the headline in the drawing's title block.
-- A three-step quote form (part, requirements, contact) with file checks for STEP, IGES, DWG, DXF and PDF up to 25 MB. A buyer without a drawing can describe the part instead (then the description is required). **Nothing is sent**; it shows the confirmation a buyer would see.
+- A three-step quote form (part, requirements, contact) with file checks for STEP, IGES, DWG, DXF and PDF up to 25 MB. A buyer without a drawing can describe the part instead (then the description is required). Its server side (`api/`, `server/`) validates again, stores files in Vercel Blob and emails the shop through Resend; it runs in mock mode without any keys (see "Quote form backend"). **Until the form is switched over to it, the page still sends nothing.**
 - A capability explorer: pick material, part size and tolerance, see which processes fit. Filters live in the URL, so a link can be shared.
 - A tolerance ruler that draws ±0.005 in to ±0.0002 in to scale against paper, a hair and a blood cell.
 - An inch/mm switch for the whole site, remembered in the browser.
@@ -39,7 +39,8 @@ Checks (all should pass before a deploy):
 
 ```sh
 npm run check        # TypeScript and Astro type check
-npm test             # unit tests (units, tolerance ruler, filter, form validation)
+npm test             # unit tests (units, tolerance ruler, filter, form validation, quote API)
+npm run smoke:rfq    # quote API end to end in mock mode (see "Quote form backend")
 npm run build && npm run check-links   # every internal link in dist/ resolves
 npm audit            # dependency vulnerabilities
 ```
@@ -81,8 +82,11 @@ src/
   lib/                  plain logic with tests next to it (*.test.ts)
   styles/               tokens.css, base.css, layout.css, print.css
 public/                 favicon, og.png, boot.js (applies saved preferences before paint)
-scripts/                check-links.mjs, shoot.mjs
-vercel.json             security headers and clean URLs for Vercel
+api/                    Vercel Functions: rfq.ts, upload.ts (thin wrappers)
+server/                 quote form logic: validate, mail templates, adapters/ (mail, storage, rate limit)
+scripts/                check-links.mjs, shoot.mjs, dev-api.mjs (local API), rfq-smoke.mjs
+vercel.json             security headers, clean URLs and function limits for Vercel
+.env.example            every environment variable, explained, without values
 ```
 
 ## Changing content
@@ -106,16 +110,136 @@ Run `npm run build` after editing: if a field is missing or wrong, the error nam
 1. **Remove the demo labels and allow indexing.** In `src/config/site.ts` set `demo: false` and `noindex: false`. That removes the top strip and footer line and the `noindex` meta tag, turns on `sitemap-index.xml` (not generated while the site is noindex), and switches `robots.txt` to allow crawling with a sitemap link.
 2. **Replace the fictional facts:** contacts in `site.ts`, the review in `src/components/home/Review.astro`, people in `src/pages/about.astro`, and the certification list in `src/components/home/Quality.astro` (link each real certificate).
 3. **Set the real domain** in `astro.config.mjs` (`site:`), then regenerate the social image (below).
-4. **Connect the quote form** (next section).
+4. **Connect the quote form:** follow [SETUP-KEYS.md](SETUP-KEYS.md), then set `MAIL_TO_SHOP` to the shop's real inbox and remove `MAIL_TEST_RECIPIENT` once a domain is verified in Resend.
 
-### Connecting a real form backend
+### Quote form backend
 
-The form already validates in the browser (`src/lib/rfq-validate.ts`) and builds the data with `FormData`. To send it, replace the demo block in `src/components/interactive/rfq.ts` (the part after the honeypot comment) with a `fetch` to one of:
+The server side of the quote form is two Vercel Functions in `api/` (thin wrappers) with all logic in `server/` (plain functions, tested without Vercel). It works on a fresh clone with **no accounts and no keys**: without keys it runs in mock mode and says so in the console. When the owner adds Resend and Vercel Blob, the only change is environment variables: see [SETUP-KEYS.md](SETUP-KEYS.md).
 
-- **A Vercel Function** (`api/rfq.ts`) that checks the fields again, stores files in Vercel Blob or S3, and emails the shop through Resend or Postmark. Needs accounts and API keys stored as Vercel environment variables, never in the code.
-- **A form service** such as Formspree or Basin. Fastest, but check their file size limits (often below 25 MB) and where files are stored.
+> Status: the API is finished and tested. The form on the page still shows the demo confirmation until it is switched over to this API.
 
-Either way the server must repeat every check (required fields, email format, allowed extensions, 25 MB limit, and the file's actual content, not just its name), drop requests where the hidden `website` field is filled, rate-limit by IP, and add the endpoint's origin to `connect-src` in the CSP in `vercel.json`. Update `/privacy` to say what is collected and for how long. Registering for any of these services is a decision for the site owner.
+```
+browser                         api/upload.ts            Vercel Blob (private store)
+  | 1. "may I upload bracket.step?" ->|  checks name, size, origin, limit
+  |<-- short-lived token -------------|
+  | 2. file bytes, straight to Blob ------------------------------>|
+  |                                   api/rfq.ts
+  | 3. JSON: fields + [{url, name, size}] ->|  validates, looks every file up in storage,
+  |<-- { ok: true, id: "KP-..." } ----------|  checks its first bytes, sends two emails
+```
+
+Files never pass through a function (they are capped at 4.5 MB); the browser sends them directly to Blob with a token the server hands out after checking the file name, extension and size. `/api/rfq` then trusts nothing the browser says about the files: it asks the storage for the real size and first bytes of each one.
+
+#### Run it locally (mock mode)
+
+```sh
+npm run dev:api     # terminal 1: the API on http://localhost:8787 (a stand-in for Vercel Functions)
+npm run dev         # terminal 2: the site on http://localhost:4321; /api is forwarded to the API
+```
+
+- Emails are written to `.local/outbox/` as `.json` and `.html` (open the `.html` to see the mail as the reader would). A request makes two: the shop's copy and the buyer's auto-reply, with the same request number.
+- Uploaded files land in `.local/uploads/`.
+- `.local/` is ignored by git. Delete it any time.
+- `npm run smoke:rfq` plays a browser against a fresh API and checks the whole flow (24 MB and 26 MB files, `.exe`, a program renamed to `.step`, honeypot, wrong origin, the rate limit). It needs nothing but Node.
+
+#### API
+
+Every response is JSON with `Cache-Control: no-store`. Errors always look like `{ "ok": false, "errors": { "<field>": "<message>" } }`. The messages are written for the visitor; show them as they are. `errors.form` is for problems that belong to no field. Responses never contain stack traces or internal messages. Requests need an `Origin` header that matches the site (the browser adds it); on localhost any `localhost` origin is accepted.
+
+**`POST /api/rfq`**: send a quote request. Body is JSON, at most 32 KB, `Content-Type: application/json`.
+
+| Field | Type | Rule |
+|---|---|---|
+| `part` | string | required, up to 120 characters |
+| `description` | string | up to 2000; **required when `files` is empty** |
+| `process` | string | required, one of the ids in `PROCESS_OPTIONS` |
+| `material` | string | required, one of `MATERIAL_OPTIONS` |
+| `quantity` | number or digit string | required, whole number 1 to 100000 |
+| `breaks` | string | up to 80 |
+| `tolerance` | string | required, one of `TOLERANCE_OPTIONS` |
+| `finishing`, `docs` | array of strings | each from `FINISHING_OPTIONS` / `DOCS_OPTIONS`, no repeats |
+| `date` | string `YYYY-MM-DD` | optional, after today |
+| `notes` | string | up to 2000 |
+| `name` | string | required, up to 80 |
+| `company` | string | required, up to 120 |
+| `email` | string | required, up to 120, same check as the browser's `type="email"` |
+| `phone` | string | optional, up to 20, digits `+ ( ) - .` and spaces, 7 or more |
+| `files` | array of `{ url, name, size }` | up to 5; `url` and `size` from the upload (below); `name` the file's own name, extension STEP, STP, IGES, IGS, DWG, DXF or PDF |
+| `website` | string | the honeypot: send the hidden field exactly as it is (empty for people) |
+
+All lists and limits live in one table, `src/lib/rfq-rules.ts`; the form is built from the same table. Other fields are ignored. Text fields must not contain control characters (line breaks are fine in `description` and `notes` only).
+
+| Status | Body | When |
+|---|---|---|
+| 200 | `{ "ok": true, "id": "KP-261104-7K3QX" }` | accepted, both emails sent. A request whose honeypot is filled also gets this (and nothing is sent). If only the buyer's auto-reply fails it is still 200 and the failure is logged |
+| 400 | `errors` per field (`files` and `form` too) | a field is wrong, or a file did not arrive in storage, or it is empty |
+| 403 | `errors.form` | `Origin` missing or from another site |
+| 405 | `errors.form` | not POST |
+| 413 | `errors.form` or `errors.files` | body over 32 KB, or a file over 25 MB |
+| 415 | `errors.form` or `errors.files` | body is not JSON, or a file's content does not match its extension (a program renamed to `.step`) |
+| 429 | `errors.form`, header `Retry-After` (seconds) | more than 5 accepted requests an hour from one address (or 60 calls of any kind) |
+| 500 | `errors.form` with the shop's phone and email | the shop's email could not be sent, or the server is misconfigured. Nothing was sent: the visitor may try again or call |
+
+The request number is `KP-YYMMDD-XXXXX` (UTC date, five characters without I, L, O, U). It is not a secret and nothing is looked up by it.
+
+**`POST /api/upload`**: ask to upload one file. Call it once per file, then send the bytes. Body (the event format of `@vercel/blob/client`):
+
+```json
+{ "type": "blob.generate-client-token",
+  "payload": { "pathname": "bracket.step", "clientPayload": "2097152", "multipart": false } }
+```
+
+`pathname` is the file's own name (no slashes, up to 150 characters, allowed extension). `clientPayload` is the file size in bytes as a string: it lets the server refuse a 26 MB file before it is sent. Answers:
+
+- Blob mode: `200 { "type": "blob.generate-client-token", "clientToken": "..." }`. The browser then calls `put(pathname, file, { access: 'private', token: clientToken, onUploadProgress })` from `@vercel/blob/client`. The `url` in its result is what goes into `files[].url` of `/api/rfq` (the stored name gets a random suffix, so always use the returned URL).
+- Local mock mode: `200 { "type": "blob.generate-client-token", "uploadUrl": "/api/upload?pathname=bracket.step" }`. The browser sends the raw file with `PUT` to `uploadUrl`; the answer is `200 { "ok": true, "url": "local:...", "pathname": "...", "size": 2097152 }`. Use that `url` in `/api/rfq`.
+- The two modes are told apart by `clientToken` versus `uploadUrl`; the rest of the browser code is the same.
+- Errors use the same format as above (`errors.files` for the file): 400 bad or empty name, 403 origin, 413 over 25 MB, 415 extension not allowed, 429 more than 30 uploads an hour from one address (with `Retry-After`).
+
+The browser SDK's own `upload()` helper hides these errors behind one generic message, so call the endpoint with `fetch` and then `put()`, as above, to show the server's wording.
+
+#### Environment variables
+
+See `.env.example` (every variable explained, no values). Summary:
+
+| Variable | Without it | Purpose |
+|---|---|---|
+| `RESEND_API_KEY` | emails go to `.local/outbox/` | real email through Resend |
+| `MAIL_FROM` | `onboarding@resend.dev` | sender address |
+| `MAIL_TO_SHOP` | `quotes@…` from `site.ts` (mock only; required with a key) | where the shop's copy goes |
+| `MAIL_TEST_RECIPIENT` | off | redirect **every** email to this address; subject gets `[TEST -> original address]` |
+| `BLOB_READ_WRITE_TOKEN` | uploads go to `.local/uploads/` | Vercel Blob (private store) |
+| `ALLOW_MOCKS` | off | on Vercel only: allow mock mode (see below) |
+| `API_PORT` | `8787` | port of `npm run dev:api` |
+
+On Vercel the API **refuses to run in mock mode** (it answers 500 and logs which variable is missing), because a mock there would say "sent" and lose real requests. `ALLOW_MOCKS=1` overrides this for a throwaway preview.
+
+#### Decisions and known limits
+
+- **Private Blob store, not public.** Drawings can be confidential, so files sit in a private store: nobody can open a URL without a token. The shop's email contains signed links that work for 7 days (the maximum Vercel allows). After that the owner opens the file from the Blob store in the Vercel dashboard. If signing ever fails, the request still goes through with plain links and the error is logged.
+- **Rate limiting counts per server instance.** The in-memory limiter is honest about this: on serverless each warm instance has its own counter, so the real limit is looser than 5 an hour. It sits behind a one-method interface (`server/adapters/ratelimit.ts`); swap in Upstash or a Vercel WAF rule before a client depends on it.
+- **File content check recognises, it does not scan.** The first bytes of PDF, STEP and DWG files must match the format; DXF and IGES files must at least not be a program or an archive. There is no virus scan: the shop should open files on a normal, updated machine.
+- **Rejected uploads stay in the Blob store.** A file that fails the content check was already uploaded; nothing deletes it. Clean the store from the dashboard now and then, or add a delete step if volume grows.
+- **No database.** A request lives in two emails. If the shop's email fails the visitor gets a 500 and tries again (a retry can create a second request number; the shop mail's idempotency key is per request number).
+- **Email retries once** on a server error or dropped connection, with the same idempotency key, so a retry cannot deliver twice.
+- **Logs** contain request numbers, status codes and error kinds only. No names, addresses, file names or message text.
+- **Dependencies:** one new runtime dependency, `@vercel/blob`. Resend is called with `fetch`. `package.json` pins `@vercel/cli-config` through `overrides`: the Blob SDK's chain of dependencies pulled in a version with a `zod` advisory (`npm audit`, high). Remove the override once `@vercel/blob` updates it.
+
+#### Tests
+
+```sh
+npm test            # unit and request-to-response tests (server/*.test.ts, src/lib/*.test.ts)
+npm run verify      # build, then tests, type check and link check
+npm run smoke:rfq   # end-to-end against a real local API
+```
+
+The tests send real `Request` objects into the handlers and read the `Response`: success with and without files, field errors, honeypot, 429, foreign origin, non-JSON, oversized JSON, a foreign file URL, six files, a `.exe` and a renamed program, a failing shop mail, a failing auto-reply. Email templates are tested for HTML escaping and for line breaks in subjects. The Resend adapter is tested with a replaced `fetch` (request body, headers, 4xx without retry, 5xx with one retry).
+
+`src/lib/rfq-rules.test.ts` reads the **built** form (`dist/rfq.html`) and compares every `maxlength`, `min`, `max`, `required`, `pattern`, `type` and the list of `<option>` values with the rules table, so the form and the server cannot drift apart. It needs `npm run build` first (it skips with a warning when `dist/` is missing); `npm run verify` does both.
+
+#### Changing the form
+
+Add or change a field in `src/lib/rfq-rules.ts`, use `formAttrs('<name>')` on the control in `src/components/interactive/RfqStep*.astro`, add the value to `RfqRequest` in `server/validate.ts` and a row in `server/mail-templates.ts`. `npm run verify` fails until the form and the table agree. A new material or process must be added to `MATERIAL_OPTIONS` / `PROCESS_OPTIONS` too (a test reminds you).
 
 ### Social preview image
 
@@ -131,8 +255,8 @@ npm run build
 ## Deploying to Vercel (steps; not done for this demo)
 
 1. Push the repository to GitHub (the owner decides the account and visibility).
-2. In Vercel: **Add New Project**, import the repository. Vercel detects Astro; the defaults (build `npm run build`, output `dist`) are right.
-3. Deploy. `vercel.json` adds the security headers (CSP, HSTS, frame and content-type protection) and clean URLs (`/about` instead of `/about.html`). HTTPS is automatic.
+2. In Vercel: **Add New Project**, import the repository. Vercel detects Astro; the defaults (build `npm run build`, output `dist`) are right. The `api/` folder becomes the two functions automatically.
+3. Before the first deploy that should accept requests, add the environment variables from [SETUP-KEYS.md](SETUP-KEYS.md); without them the API answers 500 on purpose. Then deploy. `vercel.json` adds the security headers (CSP, HSTS, frame and content-type protection) and clean URLs (`/about` instead of `/about.html`). HTTPS is automatic.
 4. After the first deploy, check the headers with `curl -I https://<your-domain>/` and run the site through the browser console once to make sure the CSP blocks nothing.
 5. For a custom domain, add it in Project Settings → Domains and update `site:` in `astro.config.mjs`.
 
