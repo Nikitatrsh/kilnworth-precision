@@ -3,7 +3,7 @@
 import Field from '../form/Field.astro';
 import Button from '../Button.astro';
 import { ACCEPT_ATTR } from '../../lib/rfq-validate';
-import { FIELDS, MATERIAL_OPTIONS, PROCESS_OPTIONS, formAttrs } from '../../lib/rfq-rules';
+import { MATERIAL_OPTIONS, PROCESS_OPTIONS, formAttrs } from '../../lib/rfq-rules';
 
 // Option lists live in src/lib/rfq-rules.ts, the same table the server checks against.
 const processOptions = [{ value: '', label: 'Choose a process' }, ...PROCESS_OPTIONS];
