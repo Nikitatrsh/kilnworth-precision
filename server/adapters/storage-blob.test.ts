@@ -1,3 +1,4 @@
+import { getPayloadFromClientToken } from '@vercel/blob/client';
 import { describe, expect, it, vi } from 'vitest';
 import { UploadError, type UploadLimits } from './storage';
 import { blobStorage } from './storage-blob';
@@ -80,6 +81,30 @@ describe('blobStorage.issueUpload', () => {
     await expect(
       blobStorage(TOKEN, sdk).issueUpload(body, new Request('https://x.example'), strict),
     ).rejects.toMatchObject({ status: 415 });
+  });
+});
+
+describe('blobStorage.issueUpload with the real SDK (signing happens offline)', () => {
+  it('issues a token that carries the limits we asked for', async () => {
+    const event = {
+      type: 'blob.generate-client-token',
+      payload: { pathname: 'part.step', clientPayload: '123', multipart: false },
+    };
+    const answer = (await blobStorage(TOKEN).issueUpload(
+      event,
+      new Request('https://site.example/api/upload', { method: 'POST' }),
+      limits,
+    )) as {
+      type: string;
+      clientToken: string;
+    };
+    expect(answer.type).toBe('blob.generate-client-token');
+    expect(getPayloadFromClientToken(answer.clientToken)).toMatchObject({
+      pathname: 'part.step',
+      maximumSizeInBytes: 25 * 1024 * 1024,
+      addRandomSuffix: true,
+      allowOverwrite: false,
+    });
   });
 });
 
