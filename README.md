@@ -170,7 +170,7 @@ Every response is JSON with `Cache-Control: no-store`. Errors always look like `
 | `breaks` | string | up to 80 |
 | `tolerance` | string | required, one of `TOLERANCE_OPTIONS` |
 | `finishing`, `docs` | array of strings | each from `FINISHING_OPTIONS` / `DOCS_OPTIONS`, no repeats |
-| `date` | string `YYYY-MM-DD` | optional, after today |
+| `date` | string `YYYY-MM-DD` | optional, after today (the server counts days in UTC and also accepts yesterday, so a visitor in a late time zone is not refused after Send) |
 | `notes` | string | up to 2000 |
 | `name` | string | required, up to 80 |
 | `company` | string | required, up to 120 |
