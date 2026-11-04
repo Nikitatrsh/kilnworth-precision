@@ -35,7 +35,8 @@ import { site } from '../config/site';
     </p>
     <ul>
       <li>
-        <strong>Resend</strong> delivers the two emails (to the shop and your confirmation).
+        <strong>Resend</strong> delivers the two emails (to the shop and your confirmation). It
+        keeps a log of the emails it sends; how long is set by Resend, not by this site.
       </li>
       <li>
         <strong>Vercel</strong> hosts the site and the form's server code. Your files go straight
@@ -46,8 +47,20 @@ import { site } from '../config/site';
     </ul>
     <p>
       <strong>How long:</strong> the emails stay in the mailboxes and the files in the store until
-      the site owner deletes them; there is no automatic deletion. To have your request deleted,
-      email <a href={`mailto:${site.email}`}>{site.email}</a> with your request number.
+      the site owner deletes them; there is no automatic deletion.
+      {site.demo ? (
+        <>
+          {' '}
+          {site.name} is fictional: the address {site.email} does not exist, so a deletion request
+          cannot be sent through it. Please do not enter real personal data in this demo.
+        </>
+      ) : (
+        <>
+          {' '}
+          To have your request deleted, email <a href={`mailto:${site.email}`}>{site.email}</a> with
+          your request number.
+        </>
+      )}
     </p>
     <p>
       <strong>Abuse protection:</strong> to limit automated sending, the server counts requests per
