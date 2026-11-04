@@ -52,6 +52,23 @@ describe('POST /api/upload (token for a direct upload)', () => {
     }
   });
 
+  it.each(['-1', 'abc', '1.5', '', ' ', '1e3', 'NaN', '0x10', '12 ', '9'.repeat(16)])(
+    'refuses a declared size of %j with 400 in the usual error format',
+    async (declared) => {
+      const body = event('a.step');
+      body.payload.clientPayload = declared as never;
+      const r = await call(browserPost('/api/upload', body));
+      expect(r.status).toBe(400);
+      expect(r.json).toEqual({ ok: false, errors: { files: 'Check the file size.' } });
+    },
+  );
+
+  it('refuses a declared size that is not a string', async () => {
+    const body = event('a.step');
+    body.payload.clientPayload = 2048 as never;
+    expect((await call(browserPost('/api/upload', body))).status).toBe(400);
+  });
+
   it('refuses a declared size over 25 MB with 413 and an empty one with 400', async () => {
     expect((await call(browserPost('/api/upload', event('a.step', 25 * MB + 1)))).status).toBe(413);
     expect((await call(browserPost('/api/upload', event('a.step', 25 * MB)))).status).toBe(200);

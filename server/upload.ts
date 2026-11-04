@@ -44,9 +44,13 @@ function checkEvent(event: unknown): void {
   const payload = (event as { payload?: { pathname?: unknown; clientPayload?: unknown } } | null)
     ?.payload;
   checkName(payload?.pathname);
-  const size = Number(payload?.clientPayload);
-  if (typeof payload?.clientPayload !== 'string' || !Number.isFinite(size)) return;
-  const problem = validateFiles([{ name: String(payload.pathname), size }]);
+  const declared = payload?.clientPayload;
+  if (declared === undefined || declared === null) return; // the token still caps the real size
+  // Digits only: no sign, no fraction, no text. Anything else is not a size this site sends.
+  if (typeof declared !== 'string' || !/^\d{1,15}$/.test(declared))
+    throw new UploadError('Check the file size.', 400);
+  const size = Number(declared);
+  const problem = validateFiles([{ name: String(payload?.pathname), size }]);
   if (problem) throw new UploadError(problem, size > MAX_FILE_BYTES ? 413 : 400);
 }
 
