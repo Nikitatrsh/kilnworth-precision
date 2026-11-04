@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { MAX_FILE_NAME } from '../src/lib/rfq-rules';
 import { parseRfq, type Errors, type RfqRequest } from './validate';
 
 const today = new Date(2026, 10, 4);
@@ -38,6 +39,15 @@ const errorsOf = (over: Record<string, unknown>): Errors => {
   if (r.ok) throw new Error('expected errors');
   return r.errors;
 };
+
+describe('parseRfq: file name length', () => {
+  const named = (name: string) => [{ url: 'https://s.example/f.step', name, size: 10 }];
+  it('shares its limit with the upload token (150 characters)', () => {
+    const longest = 'a'.repeat(MAX_FILE_NAME - '.step'.length) + '.step';
+    expect(parseRfq(valid({ files: named(longest) }), today).ok).toBe(true);
+    expect(parseRfq(valid({ files: named('a' + longest) }), today).ok).toBe(false);
+  });
+});
 
 describe('parseRfq: direction marks', () => {
   const marks = '\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069';

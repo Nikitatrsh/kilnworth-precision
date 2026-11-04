@@ -13,20 +13,14 @@ import {
   readJson,
   requireMethod,
   respond,
-  tooManyRequests,
 } from './http.js';
+import { limitPerHour } from './limit.js';
 import { customerMail, shopMail, type FileLink } from './mail-templates.js';
 import { parseRfq, type RfqFile, type RfqRequest } from './validate.js';
 
 const MAX_BODY_BYTES = 32 * 1024;
-const HOUR_MS = 60 * 60 * 1000;
 const REQUESTS_PER_HOUR = 60; // every call, valid or not: keeps probing and guessing slow
 const SUBMISSIONS_PER_HOUR = 5; // accepted requests
-
-async function limit(deps: Deps, key: string, max: number): Promise<void> {
-  const { allowed, retryAfterSeconds } = await deps.limiter.hit(key, max, HOUR_MS);
-  if (!allowed) throw tooManyRequests(retryAfterSeconds);
-}
 
 const isFilled = (body: unknown) => {
   const value = (body as Record<string, unknown> | null)?.[HONEYPOT_FIELD];
@@ -100,7 +94,7 @@ export function handleRfq(request: Request, getDeps: () => Deps): Promise<Respon
     requireMethod(request, 'POST');
     checkOrigin(request, !deps.config.onVercel);
     const ip = clientIp(request);
-    await limit(deps, `rfq-any:${ip}`, REQUESTS_PER_HOUR);
+    await limitPerHour(deps, `rfq-any:${ip}`, REQUESTS_PER_HOUR);
 
     const body = await readJson(request, MAX_BODY_BYTES);
     const now = deps.now();
@@ -116,7 +110,7 @@ export function handleRfq(request: Request, getDeps: () => Deps): Promise<Respon
 
     const value = { ...parsed.value, files: await verifyFiles(deps, parsed.value.files) };
     // Counted last, right before mail goes out: a visitor fixing a mistake does not use up the hour.
-    await limit(deps, `rfq-ok:${ip}`, SUBMISSIONS_PER_HOUR);
+    await limitPerHour(deps, `rfq-ok:${ip}`, SUBMISSIONS_PER_HOUR);
     const id = deps.newId(now);
     await sendMails(deps, value, id);
     console.log(`[rfq] ${id} accepted, files: ${value.files.length}`); // no names, no addresses

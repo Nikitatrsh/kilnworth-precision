@@ -1,7 +1,13 @@
 // Server-side check of a quote request. It never trusts the browser: the rules come from the same
 // table the form is built from (src/lib/rfq-rules.ts) and the messages from the same function the
 // form uses (fieldMessage), so a visitor sees the same sentence from both.
-import { EMAIL_PATTERN, FIELDS, type FieldName, type FieldRule } from '../src/lib/rfq-rules.js';
+import {
+  EMAIL_PATTERN,
+  FIELDS,
+  MAX_FILE_NAME,
+  type FieldName,
+  type FieldRule,
+} from '../src/lib/rfq-rules.js';
 import {
   fieldMessage,
   validateDescription,
@@ -53,7 +59,6 @@ const NO_FLAGS: Flags = {
   stepMismatch: false,
 };
 
-const MAX_FILE_NAME = 200;
 const MAX_URL = 2048;
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 // Control characters. Line breaks and tabs are fine in a textarea, never in a one-line field.

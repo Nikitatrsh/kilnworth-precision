@@ -104,6 +104,12 @@ export const FIELDS = {
 export type FieldName = keyof typeof FIELDS;
 
 /**
+ * Longest file name, in characters. One value for both places that check it: the upload token
+ * (the name becomes the storage path) and the file list in the request (the same name again).
+ */
+export const MAX_FILE_NAME = 150;
+
+/**
  * Hidden trap field: people never see it, bots fill it. The name is deliberately odd: password
  * managers and browsers autofill names like website, url, email or phone, and a real request
  * caught by the trap is lost without a trace.

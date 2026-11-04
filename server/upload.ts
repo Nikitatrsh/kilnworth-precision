@@ -12,14 +12,13 @@ import {
   readJson,
   requireMethod,
   respond,
-  tooManyRequests,
 } from './http.js';
+import { limitPerHour } from './limit.js';
+import { MAX_FILE_NAME } from '../src/lib/rfq-rules.js';
 import { MAX_FILE_BYTES, validateFiles } from '../src/lib/rfq-validate.js';
 
 const TOKENS_PER_HOUR = 30;
-const HOUR_MS = 60 * 60 * 1000;
 const MAX_EVENT_BYTES = 4096;
-const MAX_NAME = 150;
 
 /** Name and extension of a file the browser wants to upload. */
 function checkName(pathname: unknown): void {
@@ -27,7 +26,7 @@ function checkName(pathname: unknown): void {
   if (
     typeof pathname !== 'string' ||
     pathname === '' ||
-    pathname.length > MAX_NAME ||
+    pathname.length > MAX_FILE_NAME ||
     /[\u0000-\u001f\u007f/\\]/.test(pathname)
   ) {
     throw new UploadError('Check the file name.', 400);
@@ -56,15 +55,6 @@ function checkEvent(event: unknown): void {
 
 const limits: UploadLimits = { maxBytes: MAX_FILE_BYTES, checkName };
 
-async function enforceLimit(deps: Deps, request: Request): Promise<void> {
-  const { allowed, retryAfterSeconds } = await deps.limiter.hit(
-    `upload:${clientIp(request)}`,
-    TOKENS_PER_HOUR,
-    HOUR_MS,
-  );
-  if (!allowed) throw tooManyRequests(retryAfterSeconds);
-}
-
 async function receiveBytes(request: Request, deps: Deps): Promise<Response> {
   checkOrigin(request, !deps.config.onVercel);
   if (!deps.storage.saveLocal) throw new HttpError(404, { form: 'Not found.' });
@@ -85,7 +75,7 @@ export function handleUploadRoute(request: Request, getDeps: () => Deps): Promis
     if (request.method === 'PUT') return receiveBytes(request, deps);
     requireMethod(request, 'POST');
     checkOrigin(request, !deps.config.onVercel);
-    await enforceLimit(deps, request);
+    await limitPerHour(deps, `upload:${clientIp(request)}`, TOKENS_PER_HOUR);
     const event = await readJson(request, MAX_EVENT_BYTES);
     checkEvent(event);
     return json(await deps.storage.issueUpload(event, request, limits));
