@@ -9,7 +9,7 @@ It shows the kind of site we build for B2B manufacturers: one whose job is to tu
 What is on it:
 
 - A home page built around an engineering drawing of a real-looking part, with the headline in the drawing's title block.
-- A three-step quote form (part, requirements, contact) with file checks for STEP, IGES, DWG, DXF and PDF up to 25 MB. A buyer without a drawing can describe the part instead (then the description is required). Its server side (`api/`, `server/`) validates again, stores files in Vercel Blob and emails the shop through Resend; it runs in mock mode without any keys (see "Quote form backend"). **Until the form is switched over to it, the page still sends nothing.**
+- A three-step quote form (part, requirements, contact) with file checks for STEP, IGES, DWG, DXF and PDF up to 25 MB. A buyer without a drawing can describe the part instead (then the description is required). Its server side (`api/`, `server/`) validates again, stores files in Vercel Blob and emails the shop through Resend; it runs in mock mode without any keys (see "Quote form backend").
 - A capability explorer: pick material, part size and tolerance, see which processes fit. Filters live in the URL, so a link can be shared.
 - A tolerance ruler that draws ±0.005 in to ±0.0002 in to scale against paper, a hair and a blood cell.
 - An inch/mm switch for the whole site, remembered in the browser.
@@ -57,7 +57,7 @@ npm run shoot -- --overflow      # every page at 360–1920 px, reports horizont
 
 | Piece | Why |
 |---|---|
-| [Astro](https://astro.build) 7, static output | Ships HTML with almost no JavaScript (1.6–3 KB gzipped per page). Content lives in Markdown and JSON, separate from layout. Hosts free on Vercel. |
+| [Astro](https://astro.build) 7, static output | Ships HTML with almost no JavaScript (1.6–3 KB gzipped per page; the quote page about 7.5 KB, plus 28 KB for the Blob upload client loaded only when a file goes to Blob). Content lives in Markdown and JSON, separate from layout. Hosts free on Vercel. |
 | TypeScript, strict | Content files are checked against schemas at build time; a typo in a case study fails the build with the field name. |
 | Plain CSS with tokens | One `tokens.css` holds every color, size and space. No Tailwind or UI kit: this site needs its own visual system, and plain CSS is the easiest for the next person to read. |
 | Vanilla TypeScript for the interactive parts | Four small scripts. The logic (filtering, unit conversion, validation) is in `src/lib/` as plain functions with unit tests. |
@@ -79,7 +79,8 @@ src/
   components/           layout pieces; drawings/ holds the SVG drawings; interactive/ the scripts
                         (small components keep styles in <style>; bigger ones in a sibling .css
                         file such as hero.css or rfq.css, every selector starting at the root class)
-  lib/                  plain logic with tests next to it (*.test.ts)
+  lib/                  plain logic with tests next to it (*.test.ts); api.ts and upload.ts are
+                        the quote form's browser side of the API
   styles/               tokens.css, base.css, layout.css, print.css
 public/                 favicon, og.png, boot.js (applies saved preferences before paint)
 api/                    Vercel Functions: rfq.ts, upload.ts (thin wrappers)
@@ -116,8 +117,6 @@ Run `npm run build` after editing: if a field is missing or wrong, the error nam
 
 The server side of the quote form is two Vercel Functions in `api/` (thin wrappers) with all logic in `server/` (plain functions, tested without Vercel). It works on a fresh clone with **no accounts and no keys**: without keys it runs in mock mode and says so in the console. When the owner adds Resend and Vercel Blob, the only change is environment variables: see [SETUP-KEYS.md](SETUP-KEYS.md).
 
-> Status: the API is finished and tested. The form on the page still shows the demo confirmation until it is switched over to this API.
-
 ```
 browser                         api/upload.ts            Vercel Blob (private store)
   | 1. "may I upload bracket.step?" ->|  checks name, size, origin, limit
@@ -129,6 +128,18 @@ browser                         api/upload.ts            Vercel Blob (private st
 ```
 
 Files never pass through a function (they are capped at 4.5 MB); the browser sends them directly to Blob with a token the server hands out after checking the file name, extension and size. `/api/rfq` then trusts nothing the browser says about the files: it asks the storage for the real size and first bytes of each one.
+
+#### In the browser
+
+`src/components/interactive/rfq.ts` runs the form; the network part is in `src/lib/` and tested with a replaced `fetch`:
+
+- `upload.ts`: one file at a time, `POST /api/upload` for permission, then the bytes with `put()` (Blob) or a plain `PUT` (local mock, through `XMLHttpRequest` for the progress bar). Files already in storage are remembered, so a retry after an error does not upload them again; when `/api/rfq` reports a file problem, the files are uploaded again on the next try.
+- `api.ts`: `postJson()` with a 30 s timeout and one error type. Server messages are shown as they are, next to their field (with the focus on the first one, on its step) or, for `form` and `files`, in the box above the send button. No connection, a timeout, or an answer without JSON (a proxy error page) get a plain message with the shop's phone and email.
+- `rfq-rules.ts` `requestBody()` builds the JSON from the form's own fields; a test runs it through the server's validation.
+- While sending, the button is disabled and reads "Sending…", a status line (`role="status"`) says which file is uploading, and a second click does nothing. The confirmation shows the real request number.
+- Without JavaScript the form stays readable but cannot send (files can only upload with JS); a note gives the shop's email and phone.
+
+Screenshots of the states: `docs/screenshots/rfq-*.png`.
 
 #### Run it locally (mock mode)
 
