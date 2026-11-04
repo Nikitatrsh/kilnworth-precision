@@ -15,7 +15,8 @@
     "test": "vitest run",
     "check-links": "node scripts/check-links.mjs",
     "shoot": "node scripts/shoot.mjs",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "verify": "npm run build && npm test && npm run check && npm run check-links"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
