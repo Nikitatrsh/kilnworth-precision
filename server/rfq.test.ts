@@ -81,6 +81,8 @@ describe('POST /api/rfq: success', () => {
     );
     expect(shop.text).toContain(`${STEP_URL}?signed=1`);
     expect(shop.idempotencyKey).toBe('rfq-shop/KP-261104-TEST7');
+    expect(shop.retry).toBe(true); // the shop mail may be retried, the auto-reply may not
+    expect(customer.retry).toBeFalsy();
     expect(customer.to).toBe('dana@northline.example');
     expect(customer.subject).toContain('KP-261104-TEST7');
     expect(customer.replyTo).toBeUndefined();

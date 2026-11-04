@@ -74,13 +74,15 @@ async function sendMails(deps: Deps, request: RfqRequest, id: string): Promise<v
       ...shopMail(request, id, links),
       replyTo: request.email,
       idempotencyKey: `rfq-shop/${id}`,
+      retry: true, // the request is lost without this mail
     });
   } catch (error) {
     console.error(`[rfq] ${id} shop mail failed:`, (error as Error)?.message);
     throw new HttpError(500, { form: `We could not send your request. ${FALLBACK_CONTACT}` });
   }
 
-  // The request is accepted once the shop has it; a failed auto-reply must not make the visitor send it again.
+  // The request is accepted once the shop has it; a failed auto-reply must not make the visitor send it again,
+  // and it is not retried: waiting for it would only push the answer toward the browser's timeout.
   try {
     await deps.mail.send({
       to: request.email,

@@ -11,6 +11,9 @@ const message: MailMessage = {
   idempotencyKey: 'rfq-shop/KP-261104-AAAAA',
 };
 
+// Shop mail asks for a retry; the auto-reply does not.
+const retrying: MailMessage = { ...message, retry: true };
+
 const ok = () => new Response(JSON.stringify({ id: 'abc' }), { status: 200 });
 const failure = (status: number, name = 'validation_error') =>
   new Response(
@@ -76,7 +79,7 @@ describe('resendMailer', () => {
       .fn()
       .mockResolvedValueOnce(failure(503, 'application_error'))
       .mockResolvedValueOnce(ok());
-    await resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(message);
+    await resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(retrying);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][1].headers['Idempotency-Key']).toBe('rfq-shop/KP-261104-AAAAA');
   });
@@ -84,7 +87,7 @@ describe('resendMailer', () => {
   it('gives up after the second server error', async () => {
     const fetchMock = vi.fn().mockResolvedValue(failure(500, 'application_error'));
     await expect(
-      resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(message),
+      resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(retrying),
     ).rejects.toMatchObject({ status: 500 });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -92,11 +95,36 @@ describe('resendMailer', () => {
   it('retries after a dropped connection, then reports it as a MailError', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
     const error = await resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock })
-      .send(message)
+      .send(retrying)
       .catch((e) => e);
     expect(error).toBeInstanceOf(MailError);
     expect(error.message).toBe('Resend request failed: TypeError');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry a mail that did not ask for it (the auto-reply)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(failure(503, 'application_error'));
+    await expect(
+      resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(message),
+    ).rejects.toMatchObject({ status: 503 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const dropped = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
+    await expect(
+      resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: dropped }).send(message),
+    ).rejects.toBeInstanceOf(MailError);
+    expect(dropped).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry without an idempotency key, which would risk a double delivery', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(failure(500, 'application_error'));
+    await expect(
+      resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send({
+        ...retrying,
+        idempotencyKey: undefined,
+      }),
+    ).rejects.toBeInstanceOf(MailError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('survives an error response that is not JSON', async () => {
@@ -108,6 +136,55 @@ describe('resendMailer', () => {
     ).rejects.toMatchObject({
       message: 'Resend answered 400',
       status: 400,
+    });
+  });
+
+  describe('when Resend hangs', () => {
+    // A fetch that never answers; it ends only when the caller's signal fires, like the real one.
+    const hanging = () =>
+      vi.fn(
+        (_url: unknown, init?: RequestInit) =>
+          new Promise<Response>((_, reject) =>
+            init?.signal?.addEventListener('abort', () => reject(init.signal!.reason)),
+          ),
+      );
+
+    it('gives up after the timeout and, for the shop mail, tries once more', async () => {
+      const fetchMock = hanging();
+      const started = Date.now();
+      const error = await resendMailer({
+        apiKey: 'k',
+        from: 'a@b.co',
+        fetch: fetchMock as unknown as typeof fetch,
+        timeoutMs: 20,
+      })
+        .send(retrying)
+        .catch((e) => e);
+      expect(error).toBeInstanceOf(MailError);
+      expect(error.message).toBe('Resend request failed: TimeoutError');
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(Date.now() - started).toBeLessThan(2000);
+    });
+
+    it('gives up after one timeout for the auto-reply', async () => {
+      const fetchMock = hanging();
+      await expect(
+        resendMailer({
+          apiKey: 'k',
+          from: 'a@b.co',
+          fetch: fetchMock as unknown as typeof fetch,
+          timeoutMs: 20,
+        }).send(message),
+      ).rejects.toMatchObject({ message: 'Resend request failed: TimeoutError' });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows five seconds per attempt by default', async () => {
+      const timeout = vi.spyOn(AbortSignal, 'timeout');
+      const fetchMock = vi.fn().mockResolvedValue(ok());
+      await resendMailer({ apiKey: 'k', from: 'a@b.co', fetch: fetchMock }).send(message);
+      expect(timeout).toHaveBeenCalledWith(5000);
+      timeout.mockRestore();
     });
   });
 });

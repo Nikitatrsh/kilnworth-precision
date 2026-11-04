@@ -7,6 +7,11 @@ export interface MailMessage {
   replyTo?: string;
   /** Sending the same key twice delivers once (the provider remembers it for 24 hours). */
   idempotencyKey?: string;
+  /**
+   * Try once more after a timeout or a server error. Needs an idempotencyKey, so that the retry
+   * cannot deliver twice. Default: no retry.
+   */
+  retry?: boolean;
 }
 
 export interface Mailer {
