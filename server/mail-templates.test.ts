@@ -121,6 +121,7 @@ describe('customerMail', () => {
     expect(mail.text).toContain('portfolio demo');
     expect(mail.text).toMatch(/fictional/i);
     expect(mail.html).toMatch(/fictional/i);
+    expect(mail.text).not.toContain('Call (610)'); // no real phone to call in a demo
   });
 
   it('escapes the visitor name in html', () => {

@@ -129,9 +129,12 @@ export function customerMail(r: RfqRequest, id: string, files: FileLink[]): Mail
   const rows = summaryRows(r);
   const fileNames = files.length ? files.map(fileLine).join(', ') : 'None';
   const promise = site.demo
-    ? `This site is a portfolio demo by ${site.demoBy}. ${site.name} is a fictional company, so nobody will prepare a quote. Your request only went to the demo owner's test mailbox.`
+    ? `This site is a portfolio demo by ${site.demoBy}. ${site.name} is a fictional company, so nobody will prepare a quote. Your details were used only to send you this message.`
     : `An engineer will read your request and reply within ${site.quoteTurnaround} with a price per quantity and any manufacturability notes.`;
-  const contact = `Questions? Call ${site.phone.display} (${site.hours}) and quote ${id}.`;
+  // A demo has no real shop to call.
+  const contact = site.demo
+    ? ''
+    : `Questions? Call ${site.phone.display} (${site.hours}) and quote ${id}.`;
 
   const text = [
     `Hi ${r.name},`,
@@ -140,7 +143,9 @@ export function customerMail(r: RfqRequest, id: string, files: FileLink[]): Mail
     `What you sent:\n${textRows(rows)}\nFiles: ${fileNames}`,
     contact,
     site.name,
-  ].join('\n\n');
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 
   const html = page(
     `We received your quote request ${id}`,
@@ -149,9 +154,11 @@ export function customerMail(r: RfqRequest, id: string, files: FileLink[]): Mail
       `<p>We received your quote request. Your request number is <strong>${esc(id)}</strong>.</p>`,
       `<p>${esc(promise)}</p>`,
       `<h2 style="font-size:16px">What you sent</h2>${htmlRows(rows)}<p>Files: ${esc(fileNames)}</p>`,
-      `<p>${esc(contact)}</p>`,
+      contact && `<p>${esc(contact)}</p>`,
       `<p>${esc(site.name)}</p>`,
-    ].join(''),
+    ]
+      .filter(Boolean)
+      .join(''),
   );
 
   return { subject: `We received your quote request ${id}`, text, html };
