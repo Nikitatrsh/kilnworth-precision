@@ -70,7 +70,9 @@ export const DOCS_OPTIONS: readonly Option[] = [
   { value: 'cmm', label: 'CMM report per lot' },
 ];
 
-export const PHONE_PATTERN = '[0-9+()\\-. ]{7,20}';
+// Parentheses are escaped on purpose: browsers compile `pattern` with the "v" flag, where a bare ( or )
+// inside [...] is a syntax error, and an invalid pattern is silently ignored.
+export const PHONE_PATTERN = '[0-9+\\(\\)\\-. ]{7,20}';
 
 export const FIELDS = {
   part: { label: 'Part name or number', kind: 'text', required: true, maxLength: 120 },

@@ -40,7 +40,9 @@ describe('rules table', () => {
 
   it('turns a rule into form attributes', () => {
     expect(formAttrs('quantity')).toMatchObject({ required: true, min: '1', max: '100000' });
-    expect(formAttrs('phone').pattern).toBe('[0-9+()\\-. ]{7,20}');
+    expect(formAttrs('phone').pattern).toBe('[0-9+\\(\\)\\-. ]{7,20}');
+    // The browser compiles the pattern with the "v" flag; a pattern that fails there is ignored.
+    expect(() => new RegExp(`^(?:${formAttrs('phone').pattern})$`, 'v')).not.toThrow();
     expect(formAttrs('notes')).toMatchObject({ required: false, maxlength: 2000 });
   });
 
