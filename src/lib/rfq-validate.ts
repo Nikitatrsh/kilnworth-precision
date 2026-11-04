@@ -61,6 +61,8 @@ export function validateTargetDate(value: string, today: Date = new Date()): str
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!m) return 'Use the format YYYY-MM-DD.';
   const picked = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  // new Date() rolls 30 February over to March; the browser's date input never sends that, a server can see it.
+  if (picked.getMonth() !== Number(m[2]) - 1) return 'Use the format YYYY-MM-DD.';
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   return picked > startOfToday ? null : 'Pick a date after today.';
 }

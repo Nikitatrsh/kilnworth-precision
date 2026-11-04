@@ -84,6 +84,10 @@ describe('validateTargetDate', () => {
   it('rejects text that is not a date', () => {
     expect(validateTargetDate('next week', today)).toBe('Use the format YYYY-MM-DD.');
   });
+  it('rejects days that do not exist instead of rolling them into the next month', () => {
+    expect(validateTargetDate('2027-02-30', today)).toBe('Use the format YYYY-MM-DD.');
+    expect(validateTargetDate('2027-13-01', today)).toBe('Use the format YYYY-MM-DD.');
+  });
 });
 
 describe('fieldMessage', () => {
