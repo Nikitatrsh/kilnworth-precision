@@ -80,7 +80,11 @@ describe('shopMail', () => {
   });
 
   it('keeps line breaks and control characters out of the subject', () => {
-    const hostile = { ...request, part: 'Bracket\r\nBcc: spy@example.com', company: 'Acme\u202eevil' };
+    const hostile = {
+      ...request,
+      part: 'Bracket\r\nBcc: spy@example.com',
+      company: 'Acme\u202eevil',
+    };
     expect(shopMail(hostile, ID, links).subject).not.toMatch(/[\r\n\u202e]/);
   });
 
