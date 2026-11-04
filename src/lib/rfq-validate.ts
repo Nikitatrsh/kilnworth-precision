@@ -55,15 +55,27 @@ export function validateDescription(text: string, fileCount: number): string | n
     : null;
 }
 
-/** Optional target date: must be a real date after `today` (local time). */
-export function validateTargetDate(value: string, today: Date = new Date()): string | null {
+/**
+ * Optional target date: must be a real date after `today`.
+ * The browser counts "today" in the visitor's time zone ('local', strict). The server cannot know
+ * that zone, so it counts in UTC and also accepts yesterday ('server'): a visitor in the Americas
+ * who picked "tomorrow" in the evening would otherwise pass the form and be refused after Send.
+ */
+export function validateTargetDate(
+  value: string,
+  today: Date = new Date(),
+  mode: 'local' | 'server' = 'local',
+): string | null {
   if (value === '') return null;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!m) return 'Use the format YYYY-MM-DD.';
   const picked = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   // new Date() rolls 30 February over to March; the browser's date input never sends that, a server can see it.
   if (picked.getMonth() !== Number(m[2]) - 1) return 'Use the format YYYY-MM-DD.';
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startOfToday =
+    mode === 'server'
+      ? new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 2)
+      : new Date(today.getFullYear(), today.getMonth(), today.getDate());
   return picked > startOfToday ? null : 'Pick a date after today.';
 }
 

@@ -190,7 +190,13 @@ describe('parseRfq: messages are the ones the form shows', () => {
   });
 
   it('checks the target date', () => {
-    expect(errorsOf({ date: '2026-11-04' }).date).toBe('Pick a date after today.');
+    // Fixed UTC time, so the result does not depend on the machine's zone. Yesterday is allowed.
+    const dateErrors = (date: string) => {
+      const r = parseRfq(valid({ date }), new Date('2026-11-04T12:00:00Z'));
+      return r.ok ? {} : r.errors;
+    };
+    expect(dateErrors('2026-11-02').date).toBe('Pick a date after today.');
+    expect(dateErrors('2026-11-03').date).toBeUndefined();
     expect(errorsOf({ date: '2027-02-30' }).date).toBe('Use the format YYYY-MM-DD.');
     expect(errorsOf({ date: 'soon' }).date).toBe('Use the format YYYY-MM-DD.');
   });

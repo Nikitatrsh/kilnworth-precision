@@ -90,6 +90,31 @@ describe('validateTargetDate', () => {
   });
 });
 
+describe('validateTargetDate on the server', () => {
+  const tooEarly = 'Pick a date after today.';
+  // Both ends of the UTC day: the answer must not depend on the time of day or the machine's zone.
+  it.each(['2026-11-04T00:00:00Z', '2026-11-04T12:00:00Z', '2026-11-04T23:59:59Z'])(
+    'accepts yesterday and later, refuses the day before yesterday (now %s UTC)',
+    (iso) => {
+      const now = new Date(iso);
+      expect(validateTargetDate('2026-11-02', now, 'server')).toBe(tooEarly);
+      expect(validateTargetDate('2026-11-03', now, 'server')).toBeNull(); // yesterday
+      expect(validateTargetDate('2026-11-04', now, 'server')).toBeNull();
+      expect(validateTargetDate('2026-11-05', now, 'server')).toBeNull();
+    },
+  );
+  it('keeps the browser rule strict', () => {
+    const today = new Date(2026, 10, 4);
+    expect(validateTargetDate('2026-11-04', today)).toBe(tooEarly);
+    expect(validateTargetDate('2026-11-04', today, 'local')).toBe(tooEarly);
+  });
+  it('still rejects text and days that do not exist', () => {
+    const now = new Date('2026-11-04T12:00:00Z');
+    expect(validateTargetDate('soon', now, 'server')).toBe('Use the format YYYY-MM-DD.');
+    expect(validateTargetDate('2027-02-30', now, 'server')).toBe('Use the format YYYY-MM-DD.');
+  });
+});
+
 describe('fieldMessage', () => {
   const ok = {
     valueMissing: false,

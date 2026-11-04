@@ -92,7 +92,7 @@ function scalar(
   if (rule.kind === 'select' && !rule.options?.some((o) => o.value === text))
     return fail({ badInput: true });
   if (rule.kind === 'date') {
-    const message = validateTargetDate(text, now);
+    const message = validateTargetDate(text, now, 'server');
     if (message) return { error: message };
   }
   return { value: text };
