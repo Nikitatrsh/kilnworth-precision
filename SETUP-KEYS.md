@@ -58,6 +58,17 @@ Do this only for a client's site, on the client's accounts:
 4. Add a stronger request limit (Upstash, or a Vercel Firewall rate-limit rule on `/api/*`). The built-in limiter counts per server instance only.
 5. Run the checks in the README, deploy, and repeat the test in section 3 with the real address.
 
+## 5. Before a real launch for a client
+
+Section 4 makes the form work for a real shop. These are the open points that were left on purpose while the site is a demo. Go through them before the first real request.
+
+1. **Stop the auto-reply from being used as a mail relay.** The auto-reply goes to whatever address a visitor types, from the shop's domain, and its text contains what they typed (name, part, other quantities, file names). Anyone could use it to send odd text to a third person. In the demo this is closed: `MAIL_TEST_RECIPIENT` sends every email to you. For a client, add at least one of: Cloudflare Turnstile on the form (free, the client's own account; the token is checked in `server/rfq.ts` before anything is sent), a Vercel Firewall rate-limit rule on `/api/*`, or an auto-reply that repeats only the request number and fixed wording, no free text.
+2. **Add Reply-To to the auto-reply.** Today only the shop mail has one. Once `MAIL_FROM` is on the client's domain, set Reply-To of the auto-reply to the shop's inbox (`replyTo` in the second `deps.mail.send` call in `server/rfq.ts`), so a buyer who answers reaches a person. In the demo this is not needed: `onboarding@resend.dev` cannot receive mail and every copy goes to you anyway.
+3. **In CI run only `npm run verify`.** The test that compares the built form with the rules table needs `dist/`; `npm test` alone silently skips it with a warning. `verify` builds first, then tests, `astro check` and the link check, so it is the one command that guarantees the form and the server agree.
+4. **Check how long Resend keeps sent emails, and write it on `/privacy`.** Resend keeps a log of sent emails, with their content, for a period that depends on the plan and can change. `/privacy` says only that Resend keeps a log and that the period is Resend's. Look up the current period in Resend's documentation for the client's plan and replace that sentence with the real figure.
+5. **Try the form with VoiceOver (Safari, macOS) and, if possible, NVDA (Windows).** Automated checks cannot hear it. Walk through all three steps with the keyboard and confirm that: field errors are read and the focus lands on the first wrong field; "Uploading ... (file 1 of 2)" and "Sending your request..." are announced while sending; the error box is read after a failure; the success screen with the request number is read. The busy state is on the button only (the form itself is not marked `aria-busy`, on purpose).
+6. **Confirm the Content-Security-Policy on the real deploy.** The local check (`npm run shoot -- --csp`) uses the real header but a mock store. On the deployed site, open the browser console on `/rfq`, upload a real file and confirm there is no CSP error and that the upload goes to `https://vercel.com/api/blob/`. If the Blob SDK uses another address, add it to `connect-src` in `vercel.json` and nothing else.
+
 ## Keys and safety
 
 - Never paste a key into a chat, an issue, a commit or a screenshot. If one leaks, delete it in Resend (API Keys) at once and make a new one; the leaked one stops working immediately.
