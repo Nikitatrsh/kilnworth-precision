@@ -1,7 +1,6 @@
-// Runs in <head> before first paint (blocking, under 1 KB) so saved preferences never flash.
-// External file instead of an inline script keeps the CSP free of 'unsafe-inline'.
+// Runs in <head> before first paint so saved preferences never flash. An external file keeps the
+// CSP free of 'unsafe-inline'. The js class comes first: the quote form is hidden without it.
 var root = document.documentElement;
-// First, outside try: the quote form is hidden without this class, so it must be set even when storage is blocked.
 root.classList.add('js');
 try {
   var unit = localStorage.getItem('kp-unit');
